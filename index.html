@@ -1,37 +1,3195 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gerenciador de Tarefas</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CIBERDEFESA — Jogo de Segurança Digital</title>
+<style>
+:root{
+  --bg:#05010f; --cyan:#00f0ff; --blue:#2b6bff; --purple:#a855f7; --pink:#ff3ea5;
+  --green:#25f4a7; --red:#ff3b5c; --yellow:#ffd93d; --txt:#e8ecff; --glass:rgba(255,255,255,.05);
+  --stroke:rgba(0,240,255,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(circle at 15% 10%, rgba(168,85,247,.20), transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(0,240,255,.16), transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(255,62,165,.12), transparent 55%), var(--bg);
+  color:var(--txt);font-family:'Segoe UI',Roboto,system-ui,-apple-system,sans-serif;
+  min-height:100vh;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,240,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.055) 1px,transparent 1px);
+  background-size:44px 44px;animation:grid 22s linear infinite;
+}
+@keyframes grid{to{background-position:44px 44px,44px 44px}}
+.wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:14px 14px 40px}
+
+.brand{text-align:center;padding:14px 6px 4px}
+.brand h1{font-size:clamp(1.7rem,6vw,3rem);letter-spacing:4px;font-weight:800;
+  background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 14px rgba(0,240,255,.5))}
+.brand .sub{color:#8ea2d6;font-size:.84rem;letter-spacing:2px;margin-top:4px;text-transform:uppercase}
+
+.hud{position:sticky;top:0;z-index:50;margin:10px 0 16px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:10px;
+  align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(12,8,34,.95),rgba(12,8,34,.75));
+  border:1px solid var(--stroke);border-radius:16px;backdrop-filter:blur(10px);
+  box-shadow:0 0 26px rgba(0,240,255,.12),inset 0 0 26px rgba(168,85,247,.07)}
+.hud .grp{display:flex;align-items:center;gap:8px}
+.tag{font-size:.66rem;letter-spacing:1.5px;color:#8ea2d6;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:3px 8px}
+.hearts{font-size:1.3rem;letter-spacing:3px;line-height:1}
+.hearts .off{opacity:.22;filter:grayscale(1)}
+.hearts .pop{animation:hp .5s}
+@keyframes hp{0%{transform:scale(1)}40%{transform:scale(1.7)}100%{transform:scale(1)}}
+.score{font-size:1.25rem;font-weight:800;color:var(--cyan);text-shadow:0 0 12px var(--cyan)}
+.score.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.3)}}
+.prog{display:flex;gap:6px}
+.pip{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:.8rem;font-weight:700;
+  border:1px solid rgba(255,255,255,.15);color:#5d6da3;background:rgba(255,255,255,.03);transition:.35s}
+.pip.done{background:linear-gradient(145deg,var(--green),#0f9b6a);border-color:var(--green);color:#04241a;box-shadow:0 0 14px rgba(37,244,167,.6)}
+.pip.cur{background:linear-gradient(145deg,var(--cyan),var(--blue));border-color:var(--cyan);color:#04121f;box-shadow:0 0 16px rgba(0,240,255,.7);transform:scale(1.1)}
+.hud .ph-name{font-weight:700;font-size:.88rem;color:var(--purple);text-shadow:0 0 10px rgba(168,85,247,.6)}
+
+.panel{background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+  border:1px solid rgba(255,255,255,.11);border-radius:20px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.45);animation:rise .45s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+h2.ptitle{font-size:1.15rem;letter-spacing:1px;display:flex;align-items:center;gap:9px;margin-bottom:6px;color:#fff;flex-wrap:wrap}
+h2.ptitle span.badge{background:linear-gradient(90deg,var(--cyan),var(--purple));color:#04121f;font-size:.7rem;padding:3px 9px;border-radius:20px;font-weight:800;letter-spacing:1px}
+.muted{color:#93a3d4;font-size:.87rem;line-height:1.55}
+.center{text-align:center}
+.hide{display:none !important}
+
+.btn{position:relative;border:1px solid var(--stroke);color:var(--txt);cursor:pointer;
+  background:linear-gradient(145deg,rgba(0,240,255,.14),rgba(168,85,247,.14));padding:11px 20px;border-radius:13px;
+  font-weight:700;font-size:.92rem;letter-spacing:.6px;transition:.22s;font-family:inherit}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 22px rgba(0,240,255,.4);border-color:var(--cyan)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn:disabled{opacity:.34;cursor:not-allowed;transform:none;box-shadow:none;filter:grayscale(1)}
+.btn.big{font-size:1.05rem;padding:15px 32px}
+.btn.primary{background:linear-gradient(145deg,var(--cyan),var(--blue));color:#02121e;border-color:transparent}
+.btn.ok{background:linear-gradient(145deg,var(--green),#0f9b6a);color:#04241a;border-color:transparent}
+.btn.danger{background:linear-gradient(145deg,var(--red),#a01030);color:#fff;border-color:transparent}
+.btn.ghost{background:transparent}
+.btn.sm{padding:7px 13px;font-size:.78rem}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+
+#toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,140%);z-index:900;padding:13px 22px;border-radius:14px;
+  font-weight:700;max-width:92vw;text-align:center;background:rgba(10,6,32,.96);border:1px solid var(--cyan);
+  box-shadow:0 0 30px rgba(0,240,255,.35);transition:transform .35s cubic-bezier(.2,1.3,.4,1);font-size:.9rem}
+#toast.show{transform:translate(-50%,0)}
+#toast.good{border-color:var(--green);box-shadow:0 0 30px rgba(37,244,167,.45)}
+#toast.bad{border-color:var(--red);box-shadow:0 0 30px rgba(255,59,92,.45)}
+#toast.warn{border-color:var(--yellow);box-shadow:0 0 30px rgba(127, 201, 8, 0.45)}
+
+.modal{position:fixed;inset:0;z-index:800;display:grid;place-items:center;padding:18px;overflow-y:auto;
+  background:rgba(3,1,12,.87);backdrop-filter:blur(6px);animation:fade .3s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal .box{max-width:560px;width:100%;text-align:center;padding:26px 22px;
+  background:linear-gradient(160deg,#150c38,#080420);border:1px solid var(--purple);border-radius:22px;
+  box-shadow:0 0 60px rgba(168,85,247,.35);animation:pop .4s cubic-bezier(.2,1.4,.4,1) both;margin:auto}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.modal .big-emo{font-size:3.2rem;animation:float 2.4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+.hero{text-align:center;padding:32px 18px;border-radius:24px;
+  background:linear-gradient(160deg,rgba(168,85,247,.16),rgba(0,240,255,.08));
+  border:1px solid rgba(168,85,247,.35);box-shadow:0 0 46px rgba(168,85,247,.2)}
+.hero .lock{font-size:4.4rem;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 22px var(--cyan))}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:18px}
+.mcard{text-align:left;padding:14px;border-radius:15px;background:var(--glass);border:1px solid rgba(255,255,255,.1);transition:.25s}
+.mcard:hover{border-color:var(--cyan);transform:translateY(-3px);background:rgba(0,240,255,.07)}
+.mcard .n{font-size:1.6rem}
+.mcard b{display:block;font-size:.92rem;margin:5px 0 3px;color:#fff}
+.mcard small{color:#8ea2d6;font-size:.75rem;line-height:1.4;display:block}
+
+/* barra de tempo */
+.timebar{height:9px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin:12px 0 4px;border:1px solid rgba(255,255,255,.1)}
+.timebar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .18s linear}
+.timebar.low i{background:linear-gradient(90deg,var(--red),var(--pink))}
+.timebar.low{animation:blink .7s infinite}
+@keyframes blink{50%{border-color:var(--red)}}
+
+/* FASE 1 */
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.mem-animal{aspect-ratio:1/1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;transition:.2s;user-select:none;position:relative}
+.mem-animal .e{font-size:clamp(1.7rem,7vw,2.7rem);filter:drop-shadow(0 0 12px rgba(0,240,255,.5))}
+.mem-animal .l{font-size:.62rem;letter-spacing:1px;color:#8ea2d6}
+.mem-animal:hover:not(.locked){border-color:var(--cyan);transform:translateY(-3px);box-shadow:0 0 20px rgba(0,240,255,.3)}
+.mem-animal.picked{border-color:var(--purple);background:linear-gradient(160deg,rgba(168,85,247,.28),rgba(168,85,247,.05));box-shadow:0 0 18px rgba(168,85,247,.45)}
+.mem-animal.picked::after{content:'✓';position:absolute;top:4px;right:7px;color:var(--green);font-weight:800;font-size:.9rem}
+.mem-animal.locked{opacity:.45;cursor:not-allowed}
+.mem-animal.press{animation:press .25s}
+@keyframes press{50%{transform:scale(.9)}}
+.seq-box{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0;min-height:74px;align-items:center}
+.seq-slot{width:60px;border-radius:14px;display:grid;place-items:center;border:2px dashed rgba(255,255,255,.18);
+  transition:.2s;height:64px;position:relative}
+.seq-slot .se{font-size:1.9rem}
+.seq-slot .sn{position:absolute;bottom:-2px;font-size:.5rem;letter-spacing:.5px;color:#7f8fbf}
+.seq-slot.on{border-style:solid;background:linear-gradient(160deg,rgba(0,240,255,.18),rgba(168,85,247,.1));box-shadow:0 0 18px rgba(0,240,255,.4);animation:pop .35s}
+.seq-slot.hit{border-color:var(--green);background:rgba(37,244,167,.16);box-shadow:0 0 20px rgba(37,244,167,.5)}
+.seq-slot.miss{border-color:var(--red);background:rgba(255,59,92,.16);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+.rounds{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.rd{width:34px;height:6px;border-radius:6px;background:rgba(255,255,255,.12)}
+.rd.on{background:linear-gradient(90deg,var(--cyan),var(--purple));box-shadow:0 0 10px var(--cyan)}
+.streak{text-align:center;font-weight:800;letter-spacing:1px;color:var(--pink);font-size:.82rem;margin-top:8px}
+
+/* FASE 2 */
+.avatar-stage{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+#avatarBox{width:190px;height:246px;border-radius:20px;position:relative;flex:0 0 auto;
+  background:linear-gradient(180deg,rgba(0,240,255,.09),rgba(168,85,247,.12));
+  border:2px solid rgba(0,240,255,.35);box-shadow:0 0 30px rgba(0,240,255,.2),inset 0 0 30px rgba(168,85,247,.12)}
+#avatarBox.shake{animation:shake .4s}
+.slot{position:absolute;display:grid;place-items:center;border-radius:12px;transition:.2s;border:1px dashed transparent}
+.slot .ph{font-size:1.8rem;opacity:.28}
+.slot.filled .ph{display:none}
+.slot.filled{border-color:rgba(0,240,255,.5);background:rgba(0,240,255,.07)}
+.slot .it{font-size:2rem;filter:drop-shadow(0 0 10px rgba(0,240,255,.6))}
+#s-cabelo{top:8px;left:0;right:0;height:52px}
+#s-olhos{top:64px;left:0;right:0;height:42px}
+#s-boca{top:108px;left:0;right:0;height:42px}
+#s-corpo{bottom:8px;left:12px;right:12px;height:78px}
+#profilePanel{flex:1 1 270px;min-width:250px;border-radius:18px;padding:16px;min-height:190px;
+  border:2px dashed rgba(168,85,247,.4);background:rgba(168,85,247,.06);transition:.2s}
+#profilePanel.over{border-color:var(--green);background:rgba(37,244,167,.14);box-shadow:0 0 24px rgba(37,244,167,.35)}
+.tray{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.piece,.card,.news{cursor:grab;user-select:none;transition:.2s;touch-action:none;border-radius:13px;
+  background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.14);padding:9px 12px;font-size:.85rem;font-weight:600}
+.piece:hover,.card:hover,.news:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 0 16px rgba(0,240,255,.28)}
+.piece .e,.card .e{font-size:1.4rem;margin-right:6px}
+.piece.used,.card.used{opacity:.26;pointer-events:none;filter:grayscale(1)}
+.card.safe{border-color:rgba(37,244,167,.5);background:linear-gradient(160deg,rgba(37,244,167,.14),transparent)}
+.card.bad{border-color:rgba(255,59,92,.5);background:linear-gradient(160deg,rgba(255,59,92,.14),transparent)}
+.card.bad:hover{border-color:var(--red);box-shadow:0 0 16px rgba(255,59,92,.4)}
+#ghost{position:fixed;z-index:1000;pointer-events:none;font-size:.8rem;font-weight:700;padding:9px 13px;border-radius:12px;
+  background:rgba(0,240,255,.22);border:1px solid var(--cyan);box-shadow:0 0 22px rgba(0,240,255,.5);transform:translate(-50%,-50%) scale(1.05)}
+.prot-list{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.prot{display:flex;gap:8px;align-items:center;background:rgba(37,244,167,.1);border:1px solid rgba(37,244,167,.3);
+  border-radius:10px;padding:7px 11px;font-size:.8rem;animation:rise .3s both}
+.prot .k{color:var(--green);font-weight:800}
+.alert-box{margin-top:12px;padding:11px 13px;border-radius:12px;border:1px solid var(--red);
+  background:rgba(255,59,92,.14);color:#ffc7d2;font-size:.82rem;font-weight:600;animation:shake .45s;text-align:left}
+.checks{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+.chk{display:flex;gap:8px;align-items:center;font-size:.78rem;padding:6px 10px;border-radius:9px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.chk.ok{color:var(--green);border-color:rgba(37,244,167,.3);background:rgba(37,244,167,.08)}
+.chk.no{color:#7f8fbf}
+.audit{display:flex;flex-direction:column;gap:7px;margin-top:14px;text-align:left}
+.arow{display:flex;gap:10px;align-items:center;padding:10px 13px;border-radius:12px;
+  background:rgba(37,244,167,.09);border:1px solid rgba(37,244,167,.3);font-size:.84rem;opacity:0;animation:rise .4s both}
+.scorebig{font-size:1.5rem;font-weight:800;color:var(--green);text-shadow:0 0 14px var(--green)}
+
+/* ---- FASE 2 SIMPLIFICADA ---- */
+.objetivo{
+  margin:10px 0 12px;padding:11px 13px;border-radius:12px;
+  background:linear-gradient(90deg,#fff8d0,#fffdf2);border:2px solid #b8860b;font-size:.83rem;line-height:1.55
+}
+.objetivo b{color:#8a5a00}
+.objetivo .odica{margin-top:6px;font-size:.76rem;color:#6b4f14;opacity:.9}
+.screen .objetivo{background:#fff8d0;border-color:#b8860b;color:#3b2a00}
+.screen .objetivo .odica{color:#6b4f14}
+
+/* peça selecionável por clique */
+.piece.sel{outline:3px solid #1f5fa8;outline-offset:1px;background:#dfe8f5 !important}
+.slot.alvo{outline:3px dashed #2e7d3c;outline-offset:-3px;background:#dff5e4 !important;border-style:dashed !important}
+.screen .slot.alvo{background:#dff5e4 !important;outline-color:#2e7d3c}
+
+/* painel de proteção */
+.protect{
+  border:3px dashed #2e7d3c;background:#f2fbf4;border-radius:12px;padding:14px;min-height:96px;
+  margin-bottom:12px;transition:.2s
+}
+.protect.over{background:#dff5e4;border-style:solid;box-shadow:0 0 18px rgba(46,125,60,.35)}
+.screen .protect{background:#f2fbf4;border-color:#2e7d3c}
+.protect .plog{font-size:.82rem;color:#0a3a18;margin-bottom:8px}
+.prot-list{display:flex;flex-direction:column;gap:6px;min-height:20px}
+.prot{border-radius:9px;padding:7px 11px;font-size:.82rem;display:flex;gap:8px;align-items:center;
+  background:#dff5e4;border:1px solid #2e7d3c;color:#0a3a18;animation:rise .3s both}
+.prot b{color:#0a4a0a}
+.prot.bad{background:#ffe0e0;border-color:#a01818;color:#6b0000}
+.prot.bad b{color:#a01818}
+.screen .prot{background:#dff5e4;border:1px solid #2e7d3c;color:#0a3a18}
+.screen .prot.bad{background:#ffe0e0;border-color:#a01818;color:#6b0000}
+.prot-list:empty::after{content:"nenhuma proteção ainda — clique nas opções verdes abaixo";
+  font-size:.78rem;color:#7a8a7a;font-style:italic}
+
+/* texto explicativo dentro de cada opção */
+.card .why{display:block;font-size:.7rem;color:#444;margin-top:4px;line-height:1.4;font-weight:400}
+.screen .card .why{color:#333}
+.card.safe .why{color:#0a4a0a}
+.card.bad .why{color:#6b0000}
+
+/* teclado da senha mais claro */
+.keypad .key{line-height:1.35;min-width:88px}
+.keypad .key b{font-size:.95rem;display:block}
+.screen .keypad .key{background:linear-gradient(180deg,#e8e8e8,#b0b0b0);border:2px outset #efefef;color:#000;box-shadow:1px 1px 0 #000}
+
+/* =====================================================================
+   LEGIBILIDADE — FASE 3 (phishing) e FASE 4 (fake news)
+   ===================================================================== */
+.progress-dots{display:flex;gap:7px;justify-content:center;margin:10px 0}
+.pdot{width:14px;height:14px;border-radius:50%;border:2px solid var(--graysh);background:var(--graylt)}
+.pdot.on{background:#2e7d3c;border-color:#1c5426}
+.pdot.cur{background:#1f5fa8;border-color:#0d3c6b;transform:scale(1.25)}
+
+/* FASE 3 */
+.mail-hd{display:flex;flex-direction:column;gap:4px;padding:14px 16px;background:#dbe4f2;border-bottom:2px solid #8ea2bd}
+.mail-hd .row{display:flex;gap:10px;font-size:.88rem;align-items:flex-start;line-height:1.5}
+.mail-hd .lbl{flex:0 0 74px;font-weight:700;color:#243a5e;font-size:.76rem;letter-spacing:.5px;padding-top:2px}
+.mail-hd .val{flex:1;color:#000;word-break:break-all;font-weight:600}
+.mail-hd .dom{background:#f8c9c9;padding:2px 6px;border-radius:5px;border:2px solid #9c1010;color:#6e0000;font-weight:700}
+.mail-hd .subj{font-size:1.02rem;font-weight:800;color:#7a0000;line-height:1.45}
+.mail-bd{padding:18px 16px;font-size:1.02rem;line-height:2.1;color:#000;background:#fff}
+
+/* sinal suspeito: agora em VERMELHO */
+.sign{
+  display:inline-block;padding:4px 9px;margin:2px 0;border-radius:6px;cursor:pointer;transition:.16s;
+  border:2px dashed #9c1010;background:#f8c9c9;color:#6e0000;font-weight:700;line-height:1.5
+}
+.sign:hover{background:#ffb3b3;box-shadow:0 0 0 3px rgba(255,120,120,.45)}
+.sign:active{transform:scale(.97)}
+/* sinal já encontrado: verde ESCURO com texto branco */
+.sign.found{background:#1f6b32;border:2px solid #0d3a1b;color:#eafff0;box-shadow:none}
+.sign.found::after{content:' ✓';font-weight:900}
+.sign.flash{animation:flash .7s}
+@keyframes flash{0%,100%{box-shadow:0 0 0 0 rgba(31,95,168,.6)}40%{box-shadow:0 0 0 8px rgba(31,95,168,0)}}
+
+.huntlist{display:flex;flex-direction:column;gap:8px;margin-top:12px;
+  border:2px outset #efefef;background:var(--gray);border-radius:0;padding:12px}
+.hunt-hd{font-size:.76rem;font-weight:800;letter-spacing:1px;color:#000080;
+  border-bottom:1px solid var(--graysh);padding-bottom:6px;margin-bottom:2px}
+.hunt{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:8px;cursor:pointer;
+  background:var(--graylt);border:1px solid var(--graysh);font-size:.88rem;transition:.18s;text-align:left;width:100%}
+.hunt:hover{background:#dfe8f5;border-color:#1f5fa8}
+.hunt .box{width:22px;height:22px;border-radius:5px;border:2px inset #efefef;background:#fff;
+  display:grid;place-items:center;font-size:.8rem;flex:0 0 auto;color:transparent}
+.hunt.done{background:#1f6b32;border-color:#0d3a1b;color:#eafff0}
+.hunt.done .box{background:#eafff0;border:2px outset #a8e6bb;color:#0d3a1b}
+.hunt.done .txt{text-decoration:line-through;opacity:.9}
+.hunt .txt{flex:1}
+.hunt .tag-s{font-size:.66rem;letter-spacing:1px;padding:2px 7px;border-radius:9px;
+  background:#f8c9c9;border:1px solid #9c1010;color:#6e0000;font-weight:800}
+
+.debrief{display:flex;flex-direction:column;gap:8px;margin-top:14px;text-align:left}
+.debrief .dh{font-size:.74rem;font-weight:800;letter-spacing:1px;color:#119933;margin-top:4px}
+.dline{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;border-radius:9px;
+  background:var(--graylt);border:1px solid var(--graysh);font-size:.86rem;line-height:1.5}
+.dline b{display:block;font-size:.88rem;margin-bottom:2px}
+.dline .dsc{color:#3c4553;font-size:.8rem;line-height:1.5}
+.dline.hit{background:#1f6b32;border-color:#0d3a1b;color:#eafff0}
+.dline.hit .dsc{color:#cfe8d8}
+.dline.missed{background:#f8c9c9;border:2px solid #9c1010;color:#6e0000}
+.dline.missed .dsc{color:#7a2020}
+
+/* FASE 4 */
+.pbar{display:flex;align-items:center;gap:10px;margin:10px 0}
+.pbar .pl{flex:0 0 auto;font-size:.76rem;font-weight:700;color:#243a5e;letter-spacing:.5px}
+.pbar .pt{flex:1;height:20px;border:2px inset #efefef;background:#fff;padding:2px}
+.pbar .pt i{display:block;height:100%;background:linear-gradient(90deg,#2e7d3c,#7fc98a);width:0;transition:width .35s}
+.pbar .pn{flex:0 0 auto;font-weight:800;color:#2e7d3c;font-size:.86rem}
+
+.ncard{border:2px outset #efefef;background:var(--graylt);border-left:6px solid #1f5fa8;
+  border-radius:0;padding:13px 14px;line-height:1.55;color:#000}
+.ncard .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.ncard .meta span{font-size:.7rem;letter-spacing:.4px;padding:3px 8px;border-radius:10px;
+  background:#fff;border:1px solid var(--graysh);color:#333}
+.ncard .meta .fonte{font-weight:800;color:#1f5fa8;background:#dbe4f2}
+.ncard .titulo{font-size:1.06rem;font-weight:800;color:#000;line-height:1.4;margin-bottom:6px}
+.ncard .desc{font-size:.86rem;color:#3c4553;line-height:1.55}
+.ncard .acts{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap;align-items:center}
+.ncard.sel{border-color:#1f5fa8;background:#dfe8f5;box-shadow:0 0 0 3px rgba(31,95,168,.35)}
+.ncard.ok{border-left-color:#2e7d3c;background:#c8e6c8;opacity:.85;pointer-events:none}
+.ncard.ok .titulo{text-decoration:line-through}
+.ncard.err{border-left-color:#a01818;background:#ffd6d6;animation:shake .45s}
+.ncard.done{pointer-events:none}
+
+.clues{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:11px}
+.clue{padding:9px 11px;border-radius:8px;background:#fff;border:1px solid var(--graysh);font-size:.8rem;line-height:1.45}
+.clue b{display:block;font-size:.66rem;letter-spacing:1px;color:#5a6473;margin-bottom:3px;text-transform:uppercase}
+.clue.good{background:#dff5e4;border-color:#2e7d3c}
+.clue.good b{color:#2e7d3c}
+.clue.bad{background:#ffe4e4;border-color:#a01818}
+.clue.bad b{color:#a01818}
+.clue .mk{font-weight:800;margin-right:4px}
+
+.trashbox{border:3px dashed #b8860b;background:#fff6d0;border-radius:0;padding:16px 12px;text-align:center;
+  min-height:130px;display:grid;place-items:center;transition:.2s}
+.trashbox .t{font-size:2.6rem;line-height:1}
+.trashbox .lb{font-size:.8rem;font-weight:800;color:#8a5a00;letter-spacing:1px;margin-top:4px}
+.trashbox .sb{font-size:.74rem;color:#6b4f14;margin-top:4px;line-height:1.45}
+.trashbox.hot{border-style:solid;border-color:#a01818;background:#ffe0e0}
+.trashbox.ready{border-color:#2e7d3c;background:#dff5e4}
+
+/* =====================================================================
+   MAPA DE MISSÕES (troca de fase livre)
+   ===================================================================== */
+.mapbtn{
+  font-size:.7rem;letter-spacing:.5px;font-weight:700;padding:4px 10px;cursor:pointer;
+  background:linear-gradient(145deg,rgba(0,240,255,.16),rgba(168,85,247,.16));
+  border:1px solid var(--stroke);color:var(--txt);border-radius:8px;font-family:inherit;transition:.18s
+}
+.mapbtn:hover{background:rgba(0,240,255,.28);box-shadow:0 0 12px rgba(0,240,255,.4)}
+.screen .mapbtn{background:linear-gradient(180deg,#e8e8e8,#b0b0b0);border:2px outset #efefef;
+  color:#000;box-shadow:1px 1px 0 #000;border-radius:0;padding:4px 11px;font-size:.72rem}
+.screen .mapbtn:active{border-style:inset;box-shadow:none}
+
+.maplist{display:flex;flex-direction:column;gap:8px;margin-top:12px;text-align:left}
+.maprow{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+  padding:11px 13px;border-radius:10px;border:2px outset #efefef;background:var(--graylt);
+  font-family:inherit;font-size:.9rem;color:#000;transition:.18s
+}
+.maprow:hover{background:#dfe8f5;transform:translateX(3px)}
+.maprow .mi{font-size:1.5rem;flex:0 0 auto;line-height:1}
+.maprow .mt{flex:1;display:flex;flex-direction:column;line-height:1.35}
+.maprow .mt b{font-size:.92rem}
+.maprow .mt small{font-size:.74rem;color:#4a5261;margin-top:2px}
+.maprow .ms{font-size:.74rem;font-weight:800;color:#2e7d3c;flex:0 0 auto;letter-spacing:.5px}
+.maprow.done{background:#dff5e4;border-color:#2e7d3c}
+.maprow.cur{background:#dbe4f2;border-color:#1f5fa8;box-shadow:0 0 0 3px rgba(31,95,168,.3)}
+.maprow.cur .ms{color:#1f5fa8}
+
+/* ---- Lição educativa ao final de cada fase ---- */
+.lesson{
+  margin:14px 0 4px;border-radius:16px;padding:14px;text-align:left;
+  background:linear-gradient(150deg,rgba(0,240,255,.12),rgba(168,85,247,.12));
+  border:1px solid rgba(0,240,255,.35);box-shadow:0 0 24px rgba(0,240,255,.12)
+}
+.lesson .lk{font-size:.6rem;letter-spacing:2px;color:var(--cyan);font-weight:800;margin-bottom:6px}
+.lesson .lt{font-size:.95rem;font-weight:800;color:#fff;line-height:1.35;margin-bottom:6px}
+.lesson .lp{font-size:.82rem;color:#c3d0f5;line-height:1.6}
+.lesson .la{
+  margin-top:9px;padding:9px 11px;border-radius:11px;font-size:.8rem;line-height:1.55;
+  background:rgba(37,244,167,.1);border:1px solid rgba(37,244,167,.3);color:#c8ffe9;text-align:left
+}
+.lesson .la b{color:var(--green)}
+.lesson .statline{display:flex;gap:10px;flex-wrap:wrap;margin-top:9px}
+.lesson .st{flex:1 1 90px;text-align:center;padding:7px;border-radius:10px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.1)}
+.lesson .st b{display:block;font-size:1rem;color:var(--yellow)}
+.lesson .st span{font-size:.62rem;letter-spacing:1px;color:#8ea2d6;text-transform:uppercase}
+
+/* ---- FASE 1: modo reverso / embaralhado ---- */
+.modes{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:8px 0 2px}
+.mode{font-size:.66rem;letter-spacing:1.2px;font-weight:800;padding:5px 10px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:#6f80b3}
+.mode.on{border-color:var(--pink);color:var(--pink);background:rgba(255,62,165,.16);box-shadow:0 0 12px rgba(255,62,165,.35)}
+.slot.matched{box-shadow:0 0 0 2px rgba(37,244,167,.5), 0 0 18px rgba(37,244,167,.35)}
+
+/* ---- FASE 2: nome do agente ---- */
+.namebox{margin-top:14px;border-radius:14px;border:1px solid rgba(168,85,247,.4);background:rgba(168,85,247,.07);padding:12px}
+.namebox input{
+  width:100%;max-width:320px;margin:8px auto 0;display:block;border-radius:11px;padding:10px 13px;font-size:1rem;
+  border:1px solid rgba(0,240,255,.4);background:rgba(0,0,0,.4);color:var(--txt);text-align:center;
+  font-family:inherit;letter-spacing:.5px
+}
+.namebox input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 16px rgba(0,240,255,.35)}
+.namebox .verdict{margin-top:8px;font-size:.78rem;font-weight:700;min-height:20px}
+.namebox .verdict.ok{color:var(--green)}
+.namebox .verdict.bad{color:var(--red)}
+.themes{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.theme{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.2);cursor:pointer;transition:.2s}
+.theme.on{border-color:#fff;transform:scale(1.18);box-shadow:0 0 16px currentColor}
+.avname{position:absolute;left:0;right:0;bottom:-2px;text-align:center;font-size:.62rem;letter-spacing:1px;color:var(--cyan)}
+
+/* ---- FASE 2: entropia e senhas comuns ---- */
+.bitsrow{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:9px}
+.bit{font-size:.7rem;padding:5px 10px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);color:#9fb0dd}
+.bit b{color:var(--cyan)}
+.cmp{margin-top:11px;border-radius:12px;border:1px solid rgba(255,59,92,.35);background:rgba(255,59,92,.09);padding:10px 12px;text-align:left}
+.cmp .crow{display:flex;justify-content:space-between;gap:10px;font-size:.76rem;padding:3px 0;color:#ffc2cd}
+.cmp .crow b{color:#ff8095}
+.weakwarn{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--red);
+  background:rgba(255,59,92,.16);color:#ffc7d2;font-size:.8rem;font-weight:700;animation:shake .4s}
+
+/* ---- FASE 2: 2FA ---- */
+.otpbox{margin-top:13px;border-radius:14px;border:1px solid rgba(37,244,167,.4);background:rgba(37,244,167,.07);padding:13px;text-align:center}
+.otpcode{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.5rem;letter-spacing:9px;color:var(--green);
+  text-shadow:0 0 14px rgba(37,244,167,.6);margin:6px 0 10px}
+.otpcode span{display:inline-block;animation:pop .3s both}
+.otpinput{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.3rem;letter-spacing:8px;text-align:center;
+  width:190px;padding:9px;border-radius:11px;border:1px solid rgba(37,244,167,.5);background:rgba(0,0,0,.4);color:var(--txt)}
+.otpinput:focus{outline:none;box-shadow:0 0 16px rgba(37,244,167,.35)}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.step{
+  flex:1 1 150px;font-size:.76rem;font-weight:700;padding:8px 10px;border-radius:11px;
+  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#7f8fbf;transition:.3s
+}
+.step.cur{border-color:var(--cyan);color:var(--cyan);background:rgba(0,240,255,.1);box-shadow:0 0 14px rgba(0,240,255,.3)}
+.step.done{border-color:var(--green);color:var(--green);background:rgba(37,244,167,.1)}
+
+/* ---- FASE 2: construtor de senha + hacker ---- */
+.pwbox{border-radius:16px;border:1px solid rgba(0,240,255,.3);background:rgba(0,0,0,.28);padding:14px}
+.pwfield{
+  min-height:48px;border-radius:12px;border:1px dashed rgba(0,240,255,.4);background:rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap;padding:8px 10px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.3rem;letter-spacing:3px;color:var(--cyan);min-height:52px
+}
+.pwfield.empty{color:#5d6da3;letter-spacing:1px;font-size:.85rem;font-family:inherit}
+.pwfield.ok{border-style:solid;border-color:var(--green);color:var(--green);box-shadow:0 0 18px rgba(37,244,167,.35)}
+.pwfield.hacked{border-color:var(--red);color:var(--red);animation:shake .4s}
+.pwbar{height:12px;border-radius:10px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.12);margin:10px 0 4px}
+.pwbar i{display:block;height:100%;width:0;transition:width .3s,background .3s}
+.pwlabel{font-weight:800;letter-spacing:1px;font-size:.82rem;text-align:center}
+.reqs{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:6px;margin-top:10px}
+.req{font-size:.72rem;padding:6px 9px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#8ea2d6;transition:.25s}
+.req.ok{border-color:rgba(37,244,167,.5);background:rgba(37,244,167,.1);color:#a8ffdd}
+.keypad{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.key{
+  border:1px solid rgba(0,240,255,.35);background:rgba(0,240,255,.08);color:var(--txt);cursor:pointer;
+  border-radius:12px;padding:10px 14px;font-weight:700;font-size:.84rem;transition:.18s;font-family:inherit
+}
+.key:hover{background:rgba(0,240,255,.24);box-shadow:0 0 14px rgba(0,240,255,.35);transform:translateY(-2px)}
+.key:active{transform:scale(.95)}
+.key.del{border-color:rgba(255,217,61,.5);background:rgba(255,217,61,.1)}
+.hacker{
+  margin-top:14px;border-radius:16px;border:1px solid rgba(255,59,92,.4);background:rgba(255,59,92,.08);padding:13px
+}
+.hacker .hrow{display:flex;align-items:center;gap:10px;font-size:.82rem;margin-bottom:7px}
+.hackbar{height:11px;border-radius:9px;background:rgba(0,0,0,.4);overflow:hidden;border:1px solid rgba(255,59,92,.35)}
+.hackbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--yellow),var(--red));transition:width .25s linear}
+.hackbar.hot i{background:linear-gradient(90deg,var(--red),#ff0000)}
+.battleline{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:11px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);font-size:.8rem;animation:rise .35s both}
+.battleline b{color:var(--cyan)}
+
+/* ---- FASE 5: barras de vida, chefe e power-ups ---- */
+.hpbar{width:130px;height:12px;border-radius:8px;background:rgba(255,255,255,.1);overflow:hidden;border:1px solid rgba(255,255,255,.18)}
+.hpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .25s}
+.hpbar.low i{background:linear-gradient(90deg,var(--red),var(--pink))}
+.gauge{width:88px;height:9px;border-radius:8px;background:rgba(255,255,255,.1);overflow:hidden;border:1px solid rgba(255,255,255,.16)}
+.gauge i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));transition:width .12s linear}
+.gauge.ready i{background:linear-gradient(90deg,var(--cyan),#fff)}
+.gauge.empty i{width:0 !important}
+.pwslots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.pwslot{
+  font-size:.68rem;padding:3px 9px;border-radius:20px;border:1px solid rgba(0,240,255,.4);
+  background:rgba(0,240,255,.12);color:var(--cyan);font-weight:700;letter-spacing:.5px;animation:pop .3s both
+}
+.bossbar{
+  position:absolute;left:12px;right:12px;top:38px;z-index:5;pointer-events:none;
+  opacity:0;transition:opacity .4s
+}
+.bossbar.on{opacity:1}
+.bossbar .bt{font-size:.62rem;letter-spacing:2px;color:#ffb4c0;text-align:center;margin-bottom:3px;font-weight:800}
+.bossbar .bb{height:11px;border-radius:8px;background:rgba(0,0,0,.6);border:1px solid var(--red);overflow:hidden}
+.bossbar .bb i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--pink));transition:width .18s}
+.boss-emo{position:absolute;left:0;right:0;top:64px;text-align:center;font-size:2.6rem;pointer-events:none;filter:drop-shadow(0 0 16px var(--red))}
+.hpdots{display:inline-flex;gap:4px}
+.hpdot{width:13px;height:13px;border-radius:4px;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.hpdot.off{background:rgba(255,255,255,.14);box-shadow:none}
+.cflash{animation:cf .3s}
+@keyframes cf{50%{filter:brightness(2.2)}}
+
+/* =====================================================================
+   RETRO: VISUAL DE COMPUTADOR ANTIGO (CRT bege + Windows 95)
+   Tudo abaixo sobrescreve o tema neon mantendo o conteúdo dentro da tela.
+   ===================================================================== */
+:root{
+  --case1:#e9e2cc; --case2:#cfc4a2; --case3:#b3a684;
+  --gray:#c0c0c0; --graylt:#dfdfdf; --graysh:#808080; --graydk:#3b3b3b;
+  --navy:#000080; --navy2:#1084d0;
+  --amber:#ffb000; --phos:#4bff9b;
+}
+*{font-family:'MS Sans Serif','Segoe UI',Tahoma,Verdana,sans-serif}
+
+body{
+  background:
+    radial-gradient(ellipse at 50% 0%, #2a2f38 0%, #14161b 45%, #08090b 100%);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px 10px;
+}
+body::before{display:none}          /* remove a grade neon */
+body::after{display:none}
+
+/* ---------- gabinete / monitor ---------- */
+.room{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;align-items:center;gap:0}
+.monitor{
+  width:min(1120px,98vw);
+  border-radius:26px 26px 20px 20px;
+  background:linear-gradient(180deg,var(--case1),var(--case2) 45%,var(--case3));
+  padding:16px 16px 0;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.7),
+    inset 0 -3px 6px rgba(0,0,0,.35),
+    0 26px 60px rgba(0,0,0,.75),
+    0 0 0 1px rgba(0,0,0,.25);
+  position:relative;
+}
+.monitor .screw{position:absolute;width:9px;height:9px;border-radius:50%;
+  background:radial-gradient(circle,#b9ae8c,#7d7458);box-shadow:inset 0 1px 1px rgba(0,0,0,.5)}
+.screw.a{top:8px;left:9px} .screw.b{top:8px;right:9px} .screw.c{bottom:12px;left:9px} .screw.d{bottom:12px;right:9px}
+
+/* ---------- tela CRT ---------- */
+.screenwrap{
+  background:#15140f;border-radius:14px;padding:12px;
+  box-shadow:inset 0 0 0 2px #4a4636, inset 0 6px 18px rgba(0,0,0,.9);
+  position:relative;
+}
+.screen{
+  position:relative;width:100%;height:min(78vh,900px);overflow:auto;overflow-x:hidden;
+  background:#0d1b0d;border-radius:6px;color:#d8ffe4;
+  font-family:'Courier New',Courier,monospace;
+  scrollbar-width:thin;
+}
+.screen::-webkit-scrollbar{width:14px}
+.screen::-webkit-scrollbar-track{background:var(--graylt)}
+.screen::-webkit-scrollbar-thumb{background:var(--navy2);border:2px solid var(--graylt)}
+
+/* efeitos de tubo (scanlines/vinheta/cintilação) removidos: cobriam o jogo */
+
+/* ---------- detalhe inferior do gabinete ---------- */
+.deck{
+  display:flex;align-items:center;gap:14px;padding:11px 6px 13px;flex-wrap:wrap
+}
+.deck .mbrand{font-weight:800;letter-spacing:2px;color:#5c5340;font-size:.82rem;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.deck .mbrand small{display:block;font-weight:600;letter-spacing:1px;font-size:.58rem;color:#7d7460}
+.deck .vents{flex:1;height:12px;border-radius:3px;
+  background:repeating-linear-gradient(90deg,#8f8769 0 3px,transparent 3px 9px);min-width:70px}
+.knob{width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#f3ecd6,#a89f80);box-shadow:0 2px 3px rgba(0,0,0,.45),inset 0 -2px 3px rgba(0,0,0,.3)}
+.led{width:11px;height:11px;border-radius:50%;background:var(--phos);box-shadow:0 0 12px var(--phos),0 0 3px #fff;animation:ledb 3.4s infinite}
+@keyframes ledb{0%,92%,100%{opacity:1}94%{opacity:.35}96%{opacity:.8}}
+.pwrbtn{
+  width:38px;height:26px;border-radius:6px;cursor:pointer;border:1px solid #9a9174;
+  background:linear-gradient(180deg,#f0e9d2,#c6bb98);box-shadow:0 2px 4px rgba(0,0,0,.4);
+  display:grid;place-items:center;font-size:.9rem;color:#4a4334
+}
+.pwrbtn:active{transform:translateY(1px)}
+.stand{width:190px;height:26px;border-radius:0 0 14px 14px;
+  background:linear-gradient(180deg,var(--case2),var(--case3));box-shadow:0 14px 26px rgba(0,0,0,.6)}
+.standbase{width:290px;height:14px;border-radius:50%;
+  background:linear-gradient(180deg,#4b4636,#2a271d);box-shadow:0 18px 30px rgba(0,0,0,.7)}
+
+/* ---------- BOOT / POST ---------- */
+.boot{min-height:100%;padding:18px 16px;font-size:14px;line-height:1.6;white-space:pre-wrap;color:var(--phos)}
+.boot .amber{color:var(--amber)}
+.boot .dim{color:#3f8f5f}
+.boot .ok{color:#9dffb8}
+.boot .cursor{display:inline-block;width:9px;height:16px;background:var(--phos);vertical-align:-3px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.bootbar{margin-top:10px;height:16px;border:1px solid var(--phos);padding:2px;background:rgba(0,0,0,.5)}
+.bootbar i{display:block;height:100%;background:var(--phos);width:0;transition:width .12s linear}
+
+/* ---------- LOGIN ---------- */
+.login{min-height:100%;display:grid;place-items:center;padding:22px;text-align:center}
+.loginbox{width:min(430px,100%)}
+.loginbox .sysname{font-size:1.15rem;letter-spacing:3px;color:var(--phos);font-weight:800;
+  text-shadow:0 0 12px rgba(75,255,155,.6);margin-bottom:4px}
+.loginbox .syssub{font-size:.72rem;color:#5fbf85;margin-bottom:20px;letter-spacing:1px}
+.fieldrow{display:flex;align-items:center;gap:9px;margin:10px 0}
+.fieldrow label{flex:0 0 auto;font-size:.82rem;color:#bfeccc}
+.fieldrow input{
+  flex:1;min-width:0;padding:8px 10px;font-family:'Courier New',monospace;font-size:.95rem;
+  background:#0a150a;color:var(--phos);border:2px inset #3a3a3a;border-radius:0
+}
+.fieldrow input:focus{outline:2px solid var(--phos);outline-offset:-2px}
+.retrobtn{
+  font-family:'Courier New',monospace;font-size:.86rem;padding:9px 18px;cursor:pointer;color:#0a150a;
+  background:linear-gradient(180deg,#e8e8e8,#b0b0b0);border:2px outset #efefef;border-radius:0;
+  box-shadow:1px 1px 0 #000;letter-spacing:1px;font-weight:700
+}
+.retrobtn:active{border-style:inset;transform:translate(1px,1px);box-shadow:none}
+.retrobtn.prim{background:linear-gradient(180deg,#5b9bd8,#1f5fa8);color:#fff;border-color:#9dc6ec}
+.retrobtn:disabled{opacity:.5;cursor:not-allowed}
+.warnbox{margin-top:14px;padding:11px 13px;border:2px solid var(--amber);background:rgba(255,176,0,.1);
+  color:#ffd98a;font-size:.78rem;line-height:1.55;text-align:left}
+.warnbox b{color:var(--amber)}
+.tipname{margin-top:12px;font-size:.72rem;color:#5fbf85;cursor:pointer;text-decoration:underline}
+.hintrow{margin-top:16px;font-size:.68rem;color:#4d9b6d;letter-spacing:.5px}
+
+/* ---------- DESKTOP ---------- */
+.desktop{min-height:100%;display:flex;flex-direction:column;background:#008080}
+.dt-icons{display:flex;gap:12px;flex-wrap:wrap;padding:12px 10px 4px}
+.dt-icon{width:82px;text-align:center;cursor:pointer;color:#fff;font-size:.66rem;padding:6px 4px;border-radius:3px;
+  text-shadow:1px 1px 2px #000;line-height:1.25}
+.dt-icon .ico{font-size:30px;display:block;filter:drop-shadow(1px 1px 2px rgba(0,0,0,.6))}
+.dt-icon:hover{background:rgba(0,0,0,.18)}
+.dt-icon.sel{background:rgba(0,0,0,.32)}
+.desk-body{flex:1;padding:6px 10px 12px;min-height:0}
+.taskbar{
+  display:flex;align-items:center;gap:8px;padding:4px 6px;background:var(--gray);
+  border-top:2px solid var(--graylt);font-size:.72rem;flex-wrap:wrap
+}
+.taskbar .startbtn{
+  display:flex;align-items:center;gap:6px;padding:3px 9px;background:linear-gradient(180deg,#e8e8e8,#b0b0b0);
+  border:2px outset #efefef;border-radius:0;font-weight:700;cursor:pointer;font-size:.72rem;letter-spacing:.5px
+}
+.taskbar .startbtn:active{border-style:inset}
+.taskbar .tbsep{flex:1}
+.taskbar .tbitem{padding:3px 10px;background:linear-gradient(180deg,#e8e8e8,#b0b0b0);border:2px outset #efefef;
+  display:flex;align-items:center;gap:5px;font-size:.7rem;cursor:pointer;max-width:38vw;overflow:hidden;white-space:nowrap}
+.taskbar .tray{padding:3px 9px;background:var(--graylt);border:2px inset #efefef;display:flex;gap:9px;align-items:center;font-size:.7rem}
+
+/* ---------- janelas Win95 ---------- */
+.win95{
+  background:var(--gray);border:2px outset #efefef;border-radius:0;padding:0;margin-bottom:12px;
+  box-shadow:2px 3px 0 rgba(0,0,0,.35)
+}
+.tbar{
+  display:flex;align-items:center;gap:7px;padding:4px 6px;margin:0 0 8px;
+  background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;font-weight:700;font-size:.8rem;
+  letter-spacing:.4px;cursor:default
+}
+.tbar .tico{font-size:.95rem}
+.tbar .tx{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbar .tbtns{display:flex;gap:3px}
+.tbar .tbtns span{width:16px;height:14px;background:var(--gray);border:2px outset #efefef;border-radius:0;
+  display:grid;place-items:center;font-size:.55rem;color:#000;font-weight:900}
+.winbody{padding:12px}
+
+/* ---------- conteúdo dentro da tela ---------- */
+.screen .wrap{max-width:none;margin:0;padding:0}
+.screen .panel{
+  background:var(--gray);border:2px outset #efefef;border-radius:0;padding:0;color:#000;
+  box-shadow:2px 3px 0 rgba(0,0,0,.3);animation:rise .3s ease both;margin-bottom:10px
+}
+.screen .panel>.ptitle{
+  background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;margin:0;
+  padding:5px 9px;font-size:.8rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap
+}
+.screen .panel>.ptitle .badge{background:#fff;color:var(--navy);border-radius:0;font-size:.62rem;padding:2px 7px}
+.screen .muted{color:#33383f}
+.screen .tag{background:var(--graylt);color:#222;border:1px solid var(--graysh);border-radius:0;font-size:.6rem}
+.screen .btn{
+  font-family:'MS Sans Serif',Tahoma,sans-serif;border-radius:0;border:2px outset #efefef;
+  background:linear-gradient(180deg,#e8e8e8,#b0b0b0);color:#000;font-weight:700;
+  box-shadow:1px 1px 0 #000;padding:7px 15px;font-size:.8rem;letter-spacing:.2px
+}
+.screen .btn:hover{background:linear-gradient(180deg,#f4f4f4,#c6c6c6);transform:none;box-shadow:1px 1px 0 #000;border-color:#fff}
+.screen .btn:active{border-style:inset;transform:translate(1px,1px);box-shadow:none}
+.screen .btn:disabled{background:var(--gray);color:var(--graysh);border-color:var(--gray);box-shadow:none;filter:none}
+.screen .btn.primary{background:linear-gradient(180deg,#5b9bd8,#1f5fa8);color:#fff;border-color:#9dc6ec}
+.screen .btn.ok{background:linear-gradient(180deg,#7fc98a,#2e7d3c);color:#fff;border-color:#bfe6c6}
+.screen .btn.danger{background:linear-gradient(180deg,#e07a7a,#a01818);color:#fff;border-color:#f0b0b0}
+.screen .btn.ghost{background:linear-gradient(180deg,#e8e8e8,#b0b0b0);color:#000}
+
+/* HUD dentro da tela */
+.screen .hud{
+  background:var(--gray);border:2px outset #efefef;border-radius:0;margin:0 0 10px;padding:6px 8px;
+  box-shadow:1px 2px 0 rgba(0,0,0,.3);gap:10px;position:static
+}
+.screen .hearts{letter-spacing:1px}
+.screen .score{color:#0000a8;text-shadow:none;font-family:'Courier New',monospace}
+.screen .pip{background:var(--graylt);color:#333;border:1px solid var(--graysh);border-radius:0;width:24px;height:24px;font-size:.7rem}
+.screen .pip.done{background:#2e7d3c;color:#fff;border-color:#1c5426;box-shadow:none}
+.screen .pip.cur{background:linear-gradient(180deg,#5b9bd8,#1f5fa8);color:#fff;border-color:#9dc6ec;box-shadow:none}
+.screen .ph-name{color:#0000a8;text-shadow:none;font-size:.72rem}
+
+/* componentes do jogo na tela */
+.screen .mem-animal{background:var(--graylt);border:2px inset #efefef;border-radius:0}
+.screen .mem-animal .l{color:#333}
+.screen .mem-animal:hover:not(.locked){background:#dfe8f5;border-color:#1f5fa8;box-shadow:none;transform:none}
+.screen .mem-animal.picked{background:#b8d4f0;border:2px inset #4a7ab5}
+.screen .mem-animal.picked::after{color:#0a4a0a}
+.screen .seq-slot{background:var(--graylt);border:2px inset #efefef;border-radius:0}
+.screen .seq-slot.on{background:#d8e8f8;border:2px outset #9dc6ec;box-shadow:none}
+.screen .timebar{background:var(--graylt);border:2px inset #efefef;border-radius:0;height:14px}
+.screen .timebar i{background:linear-gradient(90deg,#2e7d3c,#4bff9b)}
+.screen .timebar.low i{background:linear-gradient(90deg,#a01818,#ff6b6b)}
+.screen .streak{color:#a01818}
+.screen .counter{color:#000}
+.screen .rounds{justify-content:flex-start}
+.screen .rd{background:var(--graysh);border-radius:0;width:28px}
+.screen .rd.on{background:linear-gradient(90deg,var(--navy2),var(--navy));box-shadow:none}
+.screen .steps{justify-content:flex-start}
+.screen .step{background:var(--graylt);border:2px inset #efefef;border-radius:0;color:#333}
+.screen .step.cur{background:#b8d4f0;border:2px outset #1f5fa8;color:#000080;box-shadow:none}
+.screen .step.done{background:#bfe6c6;border:2px outset #2e7d3c;color:#0a4a0a}
+.screen .piece,.screen .card,.screen .news{background:var(--graylt);border:2px outset #efefef;border-radius:0;color:#000}
+.screen .piece:hover,.screen .card:hover,.screen .news:hover{background:#dfe8f5;border-color:#1f5fa8;box-shadow:1px 1px 0 #000;transform:none}
+.screen .card.safe{background:#c8e6c8;border-color:#2e7d3c}
+.screen .card.bad{background:#f0c8c8;border-color:#a01818}
+.screen .card.bad:hover{background:#ffdcdc;box-shadow:1px 1px 0 #000;border-color:#a01818}
+.screen .checks .chk{background:var(--graylt);border:1px solid var(--graysh);color:#333;border-radius:0}
+.screen .checks .chk.ok{background:#c8e6c8;border-color:#2e7d3c;color:#0a4a0a}
+.screen .chk.no{color:#444}
+.screen .slot{background:transparent;border:1px dashed var(--graysh);border-radius:0}
+.screen .slot.filled{background:rgba(31,95,168,.14);border-color:var(--navy)}
+.screen .avatar-stage .panel,.screen #profilePanel{background:var(--graylt);border:2px inset #efefef;border-radius:0}
+.screen #avatarBox{background:linear-gradient(180deg,#dce8f5,#c2d2e6);border:2px inset #efefef;border-radius:0;box-shadow:none}
+.screen #profilePanel{background:var(--graylt)}
+.screen #profilePanel.over{background:#c8e6c8;border:2px inset #2e7d3c;box-shadow:none}
+.screen .prot{background:#c8e6c8;border:1px solid #2e7d3c;border-radius:0;color:#000}
+.screen .alert-box{background:#ffd0d0;border:2px solid #a01818;color:#6b0000;border-radius:0}
+.screen .audit .arow{background:var(--graylt);border:1px solid var(--graysh);color:#000;border-radius:0}
+.screen .mail{background:#f4f4f4;border:2px inset #efefef;border-radius:0;box-shadow:none}
+.screen .mail-head{background:#d0d8e8;border-bottom:1px solid var(--graysh);color:#12203a}
+.screen .sig{background:var(--graylt);border:1px solid var(--graysh);border-radius:0;opacity:.4}
+.screen .sig.on{background:#c8e6c8;border:2px solid #2e7d3c;box-shadow:none;opacity:1}
+.screen .hint{background:#fff6d0;border:1px dashed #b8860b;color:#5a3d00;border-radius:0}
+.screen .pwbox{background:var(--graylt);border:2px inset #efefef;border-radius:0}
+.screen .pwfield{background:#0a150a;color:var(--phos);border:2px inset #3a3a3a;border-radius:0}
+.screen .pwfield.ok{border-color:var(--phos);box-shadow:none}
+.screen .pwbar{background:#0a0a0a;border:2px inset #3a3a3a;border-radius:0;height:16px}
+.screen .req{background:var(--graylt);border:1px solid var(--graysh);color:#333;border-radius:0}
+.screen .req.ok{background:#c8e6c8;border-color:#2e7d3c;color:#0a4a0a}
+.screen .key{background:linear-gradient(180deg,#e8e8e8,#b0b0b0);border:2px outset #efefef;border-radius:0;color:#000;box-shadow:1px 1px 0 #000}
+.screen .key:active{border-style:inset;transform:translate(1px,1px);box-shadow:none}
+.screen .hacker{background:#2a1414;border:1px solid #a01818;border-radius:0}
+.screen .hackbar{background:#0a0a0a;border:1px solid #a01818;border-radius:0}
+.screen .lesson{background:linear-gradient(150deg,#eef4ff,#e6ecf8);border:2px outset #efefef;border-radius:0;box-shadow:1px 1px 0 #000}
+.screen .lesson .lk{color:var(--navy)}
+.screen .lesson .lt{color:#000}
+.screen .lesson .lp{color:#22303f}
+.screen .lesson .la{background:#dff5e4;border:1px solid #2e7d3c;color:#0a3a18;border-radius:0}
+.screen .lesson .st{background:#fff;border:1px solid var(--graysh)}
+.screen .lesson .st span{color:#555}
+.screen .lesson .st b{color:#a01818}
+.screen .namebox{background:#e8eef8;border:2px inset #efefef;border-radius:0}
+.screen .namebox input{background:#fff;color:#000;border:2px inset #efefef;border-radius:0;text-align:left}
+.screen .otpbox{background:#eefaf0;border:2px outset #efefef;border-radius:0}
+.screen .otpcode{color:#0a4a0a;text-shadow:none}
+.screen .otpinput{background:#fff;color:#000;border:2px inset #efefef;border-radius:0}
+.screen .gamebar{background:var(--graylt);border:2px inset #efefef;padding:6px 8px}
+.screen .skill{background:linear-gradient(180deg,#e8e8e8,#b0b0b0);border:2px outset #efefef;border-radius:0;color:#000;box-shadow:1px 1px 0 #000;font-family:'MS Sans Serif',Tahoma,sans-serif}
+.screen .skill.act{background:linear-gradient(180deg,#b8a6ea,#6b4fc0);color:#fff;border-color:#c9bcf5}
+.screen .gauge{background:var(--graylt);border:1px solid var(--graysh)}
+.screen .hpbar{background:var(--graylt);border:1px solid var(--graysh)}
+.screen .hpdot{background:#1f5fa8;box-shadow:none;border-radius:0}
+.screen .pwslot{background:var(--graylt);border:1px solid var(--graysh);border-radius:0;color:#000}
+.screen #gameWrap{border:2px inset #efefef;border-radius:0;box-shadow:none;background:#000}
+.screen .padbtn{background:linear-gradient(180deg,#e8e8e8,#b0b0b0);border:2px outset #efefef;border-radius:0;color:#000}
+.screen .wavebanner{color:#fff;text-shadow:2px 2px 0 #000;font-family:'Courier New',monospace}
+.screen .bossbar .bt{color:#fff;text-shadow:1px 1px 0 #000}
+.screen .bossbar .bb{background:#2a0000;border:1px solid #a01818}
+
+/* modal */
+.screen .modal{background:rgba(0,20,0,.72);backdrop-filter:none}
+.screen .modal .box{
+  background:var(--gray);border:2px outset #efefef;border-radius:0;color:#000;box-shadow:3px 4px 0 rgba(0,0,0,.5);padding:0
+}
+.screen .modal .box>*{padding-left:14px;padding-right:14px}
+.screen .modal .box .big-emo{filter:none}
+.screen .modal .box h2{background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;padding:6px 14px;font-size:.92rem;margin:0 0 12px}
+.screen .modal .muted{color:#222}
+.screen .btn-row{padding:0 14px 14px}
+.screen .btn-row .btn{font-family:'MS Sans Serif',Tahoma,sans-serif}
+
+/* toast dentro da tela */
+#toast{
+  position:absolute;left:50%;bottom:52px;transform:translate(-50%,140%);z-index:600;
+  background:#ffffcc;border:2px outset #efefef;color:#000;border-radius:0;
+  box-shadow:2px 2px 0 rgba(0,0,0,.5);font-size:.78rem;max-width:92%;padding:8px 14px
+}
+#toast.good{background:#dff5e4;border-color:#2e7d3c}
+#toast.bad{background:#ffd6d6;border-color:#a01818}
+#toast.warn{background:#fff3c4;border-color:#b8860b}
+#ghost{background:#e8f0ff;border:1px solid var(--navy);color:#000;box-shadow:1px 2px 0 rgba(0,0,0,.5);border-radius:0;font-size:.72rem}
+.confetti{z-index:700}
+.stat{background:var(--graylt);border:2px outset #efefef;border-radius:0}
+.stat .v{color:#0000a8;text-shadow:none}
+.stat .k{color:#444}
+.tips .tip{background:#dff5e4;border:1px solid #2e7d3c;border-radius:0;color:#000}
+.rank{color:#a01818 !important;text-shadow:none !important}
+.rank.g1{color:#b8860b !important}
+.rank.g2{color:#0000a8 !important}
+.rank.g3{color:#2e7d3c !important}
+.hero{background:var(--gray);border:2px outset #efefef;border-radius:0;box-shadow:2px 3px 0 rgba(0,0,0,.3);color:#000}
+.hero .lock{filter:none;animation:none}
+.brand h1{background:none;-webkit-text-fill-color:#000080;color:#000080;filter:none;
+  font-family:'MS Sans Serif',Tahoma,sans-serif;text-shadow:1px 1px 0 #fff}
+.brand .sub{color:#333}
+.mcard{background:var(--graylt);border:2px outset #efefef;border-radius:0;color:#000}
+.mcard:hover{background:#dfe8f5;border-color:#1f5fa8;box-shadow:1px 1px 0 #000;transform:none}
+.mcard b{color:#000080}
+.mcard small{color:#333}
+.menu-grid{justify-content:flex-start}
+.menu-grid .mcard{min-width:150px}
+.timebar.low{animation:none;border-color:#a01818}
+.mem-animal.press{animation:none}
+.shake{animation:shake .4s}
+
+/* FASE 3 */
+.mail{border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.25));box-shadow:0 0 26px rgba(0,0,0,.5)}
+.mail-head{padding:12px 14px;background:rgba(0,240,255,.08);border-bottom:1px solid rgba(255,255,255,.1);font-size:.82rem;color:#c6d3ff;word-break:break-all}
+.mail-head b{color:#fff}
+.mail-body{padding:16px;font-size:.9rem;line-height:1.8}
+.sign{display:inline-block;padding:1px 6px;border-radius:7px;cursor:pointer;transition:.18s;
+  border:1px dashed rgba(255,217,61,.55);background:rgba(255,217,61,.09);color:#ffe9a8}
+.sign:hover{background:rgba(255,217,61,.26);transform:scale(1.04)}
+.sign.found{background:rgba(37,244,167,.28);border:1px solid var(--green);color:#dcfff2;box-shadow:0 0 14px rgba(37,244,167,.45)}
+.sign.miss{animation:shake .4s;border-color:var(--red);background:rgba(255,59,92,.25)}
+.signals-bar{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.sig{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:1.05rem;
+  border:1px solid rgba(255,255,255,.14);opacity:.32;transition:.3s}
+.sig.on{opacity:1;border-color:var(--green);background:rgba(37,244,167,.22);box-shadow:0 0 14px rgba(37,244,167,.5);transform:scale(1.08)}
+.debrief{text-align:left;margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.dline{display:flex;gap:9px;align-items:flex-start;font-size:.8rem;padding:8px 11px;border-radius:10px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
+.dline.hit{border-color:rgba(37,244,167,.4);background:rgba(37,244,167,.09)}
+.dline.missed{border-color:rgba(255,217,61,.4);background:rgba(255,217,61,.08)}
+
+/* FASE 4 */
+.feed{display:flex;flex-direction:column;gap:11px;margin-top:12px}
+.news{border-left:4px solid var(--blue);padding:12px 14px;line-height:1.5}
+.news .meta{font-size:.68rem;color:#8ea2d6;letter-spacing:.6px;margin-bottom:5px;display:flex;gap:8px;flex-wrap:wrap}
+.news .h{font-weight:700;color:#fff;font-size:.92rem}
+.news .d{font-size:.79rem;color:#9fb0dd}
+.news.ok{border-color:var(--green);background:linear-gradient(90deg,rgba(37,244,167,.14),transparent);opacity:.8;cursor:default}
+.news.err{border-color:var(--red);animation:shake .45s}
+.news.done{pointer-events:none}
+.clues{margin-top:9px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+.clue{font-size:.72rem;padding:6px 9px;border-radius:9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#a9b8e6}
+.clue b{display:block;color:#fff;font-size:.66rem;letter-spacing:.8px;margin-bottom:2px;opacity:.7}
+.clue.bad{border-color:rgba(255,59,92,.45);color:#ffc2cd}
+.clue.good{border-color:rgba(37,244,167,.45);color:#c6ffe8}
+#trashZone{margin-top:14px;min-height:112px;border-radius:18px;border:2px dashed rgba(255,217,61,.45);
+  background:rgba(255,217,61,.07);display:grid;place-items:center;text-align:center;padding:12px;transition:.2s}
+#trashZone .t{font-size:2.4rem}
+#trashZone.over{border-color:var(--yellow);background:rgba(255,217,61,.2);box-shadow:0 0 26px rgba(255,217,61,.35)}
+.feed-wrap{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:840px){.feed-wrap{grid-template-columns:1.4fr .75fr;align-items:start}}
+.hint{font-size:.77rem;color:var(--yellow);border:1px dashed rgba(255,217,61,.4);padding:9px 12px;border-radius:11px;
+  background:rgba(255,217,61,.07);margin-top:12px;text-align:left}
+.hint ul{margin:6px 0 0 16px;line-height:1.6}
+
+/* FASE 5 */
+#gameWrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(0,240,255,.35);box-shadow:0 0 36px rgba(0,240,255,.2)}
+#cv{display:block;width:100%;height:auto;touch-action:none;background:radial-gradient(ellipse at 50% 0%,#0d1445,#04021a 70%)}
+#overlayC{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px;background:rgba(4,2,20,.9);backdrop-filter:blur(3px)}
+#overlayC .t{font-size:1.4rem;font-weight:800;color:var(--cyan);text-shadow:0 0 18px var(--cyan);margin-bottom:6px}
+.gamebar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.skill{border:1px solid rgba(0,240,255,.4);border-radius:13px;padding:9px 14px;font-weight:800;font-size:.78rem;
+  background:rgba(0,240,255,.1);color:var(--cyan);cursor:pointer;transition:.2s;letter-spacing:1px;font-family:inherit}
+.skill:hover{background:rgba(0,240,255,.24);box-shadow:0 0 18px rgba(0,240,255,.4)}
+.skill.act{border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,.16);box-shadow:0 0 16px rgba(168,85,247,.4)}
+.pads{display:none;gap:12px;justify-content:center;margin-top:14px}
+.pads .col{display:flex;flex-direction:column;gap:10px}
+.padbtn{width:64px;height:64px;border-radius:18px;font-size:1.5rem;display:grid;place-items:center;
+  background:rgba(0,240,255,.13);border:1px solid var(--cyan);color:var(--txt);cursor:pointer;user-select:none}
+.padbtn:active{background:rgba(0,240,255,.35)}
+@media(pointer:coarse){.pads{display:flex}}
+.wavebanner{position:absolute;left:0;right:0;top:38%;text-align:center;font-size:1.6rem;font-weight:800;
+  letter-spacing:3px;color:#fff;text-shadow:0 0 20px var(--cyan);pointer-events:none;animation:waveb 1.7s ease forwards}
+@keyframes waveb{0%{opacity:0;transform:scale(.6)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}
+
+/* FINAL */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:20px 0}
+.stat{padding:16px 10px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12)}
+.stat .v{font-size:1.9rem;font-weight:800;color:var(--cyan);text-shadow:0 0 14px var(--cyan)}
+.stat .k{font-size:.66rem;letter-spacing:1.4px;color:#8ea2d6;text-transform:uppercase;margin-top:3px}
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:16px;text-align:left}
+.tip{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:13px;background:rgba(37,244,167,.07);
+  border:1px solid rgba(37,244,167,.25);font-size:.84rem}
+.tip .i{font-size:1.2rem}
+.rank{font-size:1.1rem;font-weight:800;letter-spacing:2px;margin-top:6px}
+.rank.g1{color:var(--yellow);text-shadow:0 0 18px var(--yellow)}
+.rank.g2{color:var(--cyan);text-shadow:0 0 18px var(--cyan)}
+.rank.g3{color:var(--purple);text-shadow:0 0 18px var(--purple)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:850;overflow:hidden}
+.cbit{position:absolute;width:9px;height:14px;opacity:.9;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+::-webkit-scrollbar{width:9px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--cyan),var(--purple));border-radius:8px}
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Minhas Tarefas</h1>
-      <p>Organize o seu dia de forma simples</p>
-    </header>
+<div class="room">
+  <div class="monitor">
+    <span class="screw a"></span><span class="screw b"></span>
+    <span class="screw c"></span><span class="screw d"></span>
 
-    <form id="task-form">
-      <input type="text" id="task-input" placeholder="Adicionar uma nova tarefa..." autocomplete="off" required>
-      <button type="submit" id="add-btn">Adicionar</button>
-    </form>
-
-    <div class="filter-container">
-      <button class="filter-btn active" data-filter="all">Todas</button>
-      <button class="filter-btn" data-filter="pending">Pendentes</button>
-      <button class="filter-btn" data-filter="completed">Concluídas</button>
+    <div class="screenwrap">
+      <div class="screen" id="screen">
+        <div id="boot" class="boot"></div>
+        <div id="login" class="login hide"></div>
+        <div id="desktop" class="desktop hide">
+          <div class="dt-icons" id="dtIcons"></div>
+          <div class="desk-body"><div id="app" class="wrap"></div></div>
+          <div class="taskbar">
+            <div class="startbtn" onclick="openMenu()"><span>🖥️</span> Iniciar</div>
+            <div class="tbitem" id="tbTask">CIBERDEFESA</div>
+            <div class="tbsep"></div>
+            <div class="tray">
+              <span title="Rede protegida">🛡️</span>
+              <span title="Bateria">🔋 100%</span>
+              <span id="tbClock">00:00</span>
+            </div>
+            <div class="retrobtn" style="padding:3px 10px" onclick="reboot()" title="Reiniciar computador">⟳</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <ul id="task-list"></ul>
-
-    <div class="footer">
-      <span id="task-count">0 tarefas pendentes</span>
-      <button id="clear-completed">Limpar Concluídas</button>
+    <div class="deck">
+      <button class="pwrbtn" onclick="reboot()" title="Ligar / reiniciar">⏻</button>
+      <span class="led"></span>
+      <div class="vents"></div>
+      <div class="knob"></div><div class="knob"></div>
+      <div class="mbrand">CYBERDEFESA<small>MODELO TURBO-486 · SEGURANÇA DIGITAL</small></div>
     </div>
   </div>
+  <div class="stand"></div>
+  <div class="standbase"></div>
+</div>
 
-  <script src="script.js"></script>
+<div id="toast"></div>
+<div id="ghost" class="hide"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   CIBERDEFESA — Jogo educativo de Segurança Digital
+   HTML + CSS + JS puros. Sem bibliotecas externas.
+   ===================================================================== */
+
+/* ------------------------------ ESTADO ------------------------------- */
+const TOTAL = 5;
+const S = { phase:0, lives:3, maxLives:3, score:0, done:new Set(), user:'' };
+let BOOTED=false;
+
+const app = document.getElementById('app');
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const rnd = a=>a[Math.floor(Math.random()*a.length)];
+const ri  = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+
+/* =====================================================================
+   BOOT DO COMPUTADOR — POST, login e área de trabalho
+   ===================================================================== */
+const CLOCK = (()=>{ let m=0; setInterval(()=>{
+  m=(m+1)%1440;
+  const hh=String(Math.floor(m/60)).padStart(2,'0'), mm=String(m%60).padStart(2,'0');
+  const c=document.getElementById('tbClock'); if(c) c.textContent=hh+':'+mm;
+},1000); })();
+
+/* nomes de usuário consideredos fracos na login (lição de segurança) */
+const WEAK_USERS=['admin','root','administrador','user','usuario','teste','test','guest','convidado',
+                  'anonimo','default','123456','qwerty','alex','joao','maria'];
+
+const POST=[
+  ['CYBERDEFESA BIOS v4.86  (c) 1994 SecureNet Labs',''],
+  ['','ok'],
+  ['Turbo CPU .................. 80486DX2  66 MHz','ok'],
+  ['Memory Test ............... '+ri(8192,16384)+' KB','ok'],
+  [''  ,''],
+  ['Detecting IDE Primary Master ....... HARDDISK','ok'],
+  ['Detecting IDE Secondary Master ..... CD-ROM','ok'],
+  ['Initializing Plug and Play Cards .....','ok'],
+  ['Realtek NE2000 Ethernet Adapter .....','ok'],
+  ['Sound Card: Sound Blaster 16 ........','ok'],
+  ['','ok'],
+  ['Verifying DMI Pool Data .............','ok'],
+  ['Loading boot sector from hard disk ...','ok'],
+  ['','ok']
+];
+
+window.reboot=function(){ closeModal(); SYS='boot'; BOOTED=false; startBoot(); };
+
+function startBoot(){
+  SYS='boot';
+  clearTimers();                       // garante uma sequência de boot limpa
+  const boot=$('#boot'), login=$('#login'), desk=$('#desktop');
+  boot.classList.remove('hide'); login.classList.add('hide'); desk.classList.add('hide');
+  boot.innerHTML='';
+  let i=0;
+
+  const line=(txt,st)=>{
+    const d=document.createElement('div');
+    d.innerHTML= st==='ok' ? txt+' <span class="ok">[ OK ]</span>'
+                : st==='amber' ? '<span class="amber">'+txt+'</span>'
+                : '<span class="dim">'+txt+'</span>';
+    boot.appendChild(d);
+  };
+
+  // cabeçalho
+  line('CYBERDEFESA BIOS v4.86  (c) 1994 SecureNet Labs','amber');
+  line('');
+  const step=()=>{
+    if(i>=POST.length){ loadOS(); return; }
+    const [txt,st]=POST[i++];
+    line(txt||' ',st);
+    boot.scrollTop=boot.scrollHeight;
+    t(step, st==='ok'?90:150);
+  };
+  step();
+}
+
+function loadOS(){
+  const boot=$('#boot');
+  boot.innerHTML += `
+  <div> </div>
+  <div class="amber">Iniciando o CYBERDEFESA OS 3.1…</div>
+  <div> </div>
+  <div>Procurando dispositivos de rede security<span class="cursor"></span></div>`;
+  const bar=document.createElement('div');
+  bar.className='bootbar';
+  bar.innerHTML='<i></i>';
+  boot.appendChild(bar);
+  const fill=bar.querySelector('i');
+  let w=0;
+  const grow=()=>{
+    w+=ri(9,22);
+    if(w<100){ fill.style.width=w+'%'; t(grow,110); }
+    else{
+      fill.style.width='100%';
+      t(()=>{
+        boot.innerHTML+=`
+  <div> </div>
+  <div class="ok">Rede protegida — Agente ZERO-DAY detectado</div>
+  <div class="amber">Iniciando ambiente seguro. Aguarde…</div>`;
+        boot.scrollTop=boot.scrollHeight;
+        t(showLogin,700);
+      },220);
+    }
+  };
+  t(grow,300);
+}
+
+/* ---------------- LOGIN ---------------- */
+let SYS='boot';               // boot -> login -> desktop (trava contra timers atrasados)
+
+function showLogin(){
+  if(SYS==='desktop') return;      // já entrou: nenhum timer atrasado reabre a tela
+  SYS='login';
+  const boot=$('#boot'), login=$('#login');
+  boot.classList.add('hide');
+  login.classList.remove('hide');
+  login.innerHTML=`
+    <div class="loginbox">
+      <div class="sysname">CYBERDEFESA OS 3.1</div>
+      <div class="syssub">PROGRAMA EDUCATIVO DE SEGURANÇA DIGITAL</div>
+      <div style="font-size:2.6rem;line-height:1">🖥️</div>
+      <div class="fieldrow">
+        <label for="lgUser">Usuário:</label>
+        <input id="lgUser" type="text" maxlength="18" autocomplete="off" spellcheck="false" placeholder="digite seu nome de agente">
+      </div>
+      <div class="fieldrow">
+        <label for="lgPass">Senha:</label>
+        <input id="lgPass" type="password" maxlength="24" placeholder="(pressione Enter para entrar)">
+      </div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="retrobtn prim" onclick="doLogin()">⏎ ENTRAR</button>
+      </div>
+      <div id="lgMsg"></div>
+      <div class="hintrow">Dica: escolha um nome de agente — nunca seu nome real.</div>
+    </div>`;
+  const u=$('#lgUser');
+  u.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+  const p=$('#lgPass');
+  p.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+  u.addEventListener('input',liveCheck);
+  t(()=>u.focus(),120);
+}
+
+function normUser(s){ return (s||'').trim().toLowerCase(); }
+
+function liveCheck(){
+  const box=$('#lgMsg'); if(!box) return;
+  const nm=normUser($('#lgUser').value);
+  box.innerHTML='';
+  if(!nm) return;
+  if(nm.length<3){
+    box.innerHTML='<div class="warnbox">⚠️ <b>Muito curto.</b> Use pelo menos 3 caracteres.</div>';
+  }else if(/^\d+$/.test(nm)){
+    box.innerHTML='<div class="warnbox">⚠️ <b>Só números!</b> Pode ser seu telefone ou CPF — dados pessoais Facilitam golpes.</div>';
+  }else if(/^\d{2}[\/\-.]\d{2}[\/\-.]\d{2,4}$/.test(nm)){
+    box.innerHTML='<div class="warnbox">⚠️ <b>Isso é uma data!</b> Nunca use data de nascimento em nome de usuário.</div>';
+  }else if(WEAK_USERS.includes(nm)){
+    box.innerHTML='<div class="warnbox">⚠️ <b>Nome muito previsível.</b> Hackers testam "admin", "root" e "user" primeiro.</div>';
+  }else if(nm.split(/\s+/).length>=2){
+    box.innerHTML='<div class="warnbox">⚠️ <b>Parece seu nome completo.</b> Use um apelido, não dados reais.</div>';
+  }else{
+    box.innerHTML='<div class="warnbox" style="border-color:#2e7d3c;background:rgba(46,125,60,.12);color:#0a3a18">✅ <b>Nome de agente seguro.</b> Não revela nada sobre você.</div>';
+  }
+}
+
+window.doLogin=function(){
+  const nm=normUser($('#lgUser').value);
+  if(nm.length<3){ toast('Digite um usuário com 3+ caracteres','bad'); liveCheck(); return; }
+  const weak=/^\d+$/.test(nm) || WEAK_USERS.includes(nm) || nm.split(/\s+/).length>=2;
+  if(weak){
+    $('#lgMsg').innerHTML=`
+      <div class="warnbox">⚠️ <b>Este nome é fácil de adivinhar.</b><br>
+        Nomes previsíveis (admin, root, 123456) e dados pessoais são os primeiros testados por quem quer invadir.<br>
+        Entrar mesmo assim ou usar um apelido seguro?</div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="retrobtn" onclick="doLogin()">Entrar assim mesmo</button>
+        <button class="retrobtn prim" onclick="suggestName()">Usar um nome seguro</button>
+      </div>`;
+    return;
+  }
+  enterDesktop(nm);
+};
+
+window.suggestName=function(){
+  const sug=['Zero-Day','Guardiao','FirewallFox','CyberNinja','ByteShield','RexCibernetico',
+             'Agente404','KernelPanic','MuroDeFogo','HackerDoBem'];
+  const pick=sug[Math.floor(Math.random()*sug.length)];
+  $('#lgUser').value=pick;
+  liveCheck();
+  toast('Sugestão aplicada: '+pick,'good');
+};
+
+function enterDesktop(user){
+  SYS='desktop';
+  clearTimers();                  // cancela qualquer etapa de boot ainda pendente
+  const login=$('#login'), desk=$('#desktop');
+  login.classList.add('hide');
+  desk.classList.remove('hide');
+  BOOTED=true;
+  S.user=user;
+  bootSound();
+  menu();
+}
+
+function openMenu(){ menu(); }
+
+/* ---------------- área de trabalho (ícones) ---------------- */
+const DESKTOP_ICONS=[
+  {e:'🎮',n:'CIBERDEFESA', f:()=>menu()},
+  {e:'🗺️',n:'Missões',    f:()=>showMissions()},
+  {e:'📖',n:'Tutorial',    f:()=>showTutorial(true)},
+  {e:'📝',n:'Minhas Notas', f:()=>showNotes()}
+];
+window.showNotes=function(){
+  modal({emo:'📝',title:'BLOCO DE NOTAS',
+    body:`<div style="text-align:left;font-size:.82rem;line-height:1.7">
+      Usuário atual: <b>${S.user||'visitante'}</b><br><br>
+      Lembre-se sempre:<br>
+      • Senha forte e única para cada site<br>
+      • Ative a verificação em 2 etapas (2FA)<br>
+      • Desconfie delinks e prêmios fáceis<br>
+      • Confie em licença: confira fonte e data<br>
+      • Mantenha o sistema e os apps atualizados
+    </div>`,
+    btns:[{t:'Fechar',cls:'btn'}]});
+};
+
+function renderIcons(){
+  const box=document.getElementById('dtIcons'); if(!box) return;
+  box.innerHTML=DESKTOP_ICONS.map((ic,i)=>
+    `<div class="dt-icon" data-i="${i}"><span class="ico">${ic.e}</span>${ic.n}</div>`).join('');
+  $$('#dtIcons .dt-icon').forEach(el=>{
+    el.addEventListener('click',()=>DESKTOP_ICONS[+el.dataset.i].f());
+  });
+}
+
+/* ---------------- som de boot / PC ---------------- */
+let MOTIF=null;
+function bootSound(){
+  stopMusic();
+  try{
+    if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended') AC.resume();
+    const notes=[523.25,659.25,783.99,1046.5];
+    MOTIF=notes.map((f,i)=>{
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.type='square'; o.frequency.value=f;
+      const st=AC.currentTime+i*0.14;
+      g.gain.setValueAtTime(.0001,st);
+      g.gain.exponentialRampToValueAtTime(.045,st+0.02);
+      g.gain.exponentialRampToValueAtTime(.0001,st+0.20);
+      o.connect(g); g.connect(AC.destination);
+      o.start(st); o.stop(st+0.24);
+      return o;
+    });
+  }catch(e){}
+}
+function stopMusic(){ /* sons são curtos; nada a parar */ }
+
+/* -------------------------- TIMERS / LOOP ---------------------------- */
+let TIMERS = [];
+function t(fn, ms){ const id=setTimeout(fn,ms); TIMERS.push(id); return id; }
+function every(fn, ms){ const id=setInterval(fn,ms); TIMERS.push(id); return id; }
+function clearTimers(){ TIMERS.forEach(id=>{clearTimeout(id);clearInterval(id);}); TIMERS=[]; }
+
+let retryHook = ()=>{};
+function setRetry(fn){ retryHook = fn; }
+
+/* ------------------------------ SOM ---------------------------------- */
+let AC = null;
+function sfx(freq=440,dur=.09,type='sine',vol=.05){
+  try{
+    if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended') AC.resume();
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type=type; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+dur);
+    o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+dur);
+  }catch(e){}
+}
+const sfxGood=()=>{ sfx(660,.1); t(()=>sfx(990,.15),90); };
+const sfxBad =()=>{ sfx(150,.22,'sawtooth',.06); };
+const sfxShot=()=>sfx(760,.045,'square',.022);
+const sfxBoom=()=>{ sfx(110,.15,'sawtooth',.045); t(()=>sfx(70,.18,'sawtooth',.04),40); };
+
+/* ----------------------------- FEEDBACK ------------------------------ */
+let toastT;
+function toast(msg,kind=''){
+  const el=$('#toast'); el.textContent=msg; el.className='show '+kind;
+  clearTimeout(toastT); toastT=setTimeout(()=>el.className=kind,2800);
+}
+
+let lastScore=0;
+function addScore(n){
+  S.score += Math.round(n);
+  const el=$('#scoreVal');
+  if(el){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+  hud();
+}
+
+function hud(){
+  const el=$('#hud'); if(!el) return;
+  const hearts=Array.from({length:S.maxLives},(_,i)=>
+    `<span class="${i<S.lives?'':'off'}">${i<S.lives?'❤️':'🖤'}</span>`).join('');
+  const pips=Array.from({length:TOTAL},(_,i)=>{
+    const n=i+1, d=S.done.has(n), c=(S.phase===n&&!d)?'cur':'';
+    return `<div class="pip ${d?'done':''} ${c}" title="Fase ${n}">${d?'✓':n}</div>`;
+  }).join('');
+  el.innerHTML=
+    `<div class="grp"><span class="tag">Vidas</span><div class="hearts">${hearts}</div></div>`+
+    `<div class="grp"><span class="tag">Pontos</span><span class="score" id="scoreVal">${S.score}</span></div>`+
+    `<div class="grp"><span class="tag">Progresso</span><div class="prog">${pips}</div></div>`+
+    `<div class="grp"><span class="ph-name">${phaseName(S.phase)}</span></div>`+
+    `<div class="grp"><button class="mapbtn" onclick="showMissions()" title="Trocar de fase">🗺️ Missões</button></div>`;
+}
+
+/* ======================= MAPA DE MISSÕES ============================= */
+const PHASE_INFO=[
+  {n:1, e:'🧠', t:'Memória',        d:'Crie e repita sua sequência.'},
+  {n:2, e:'👤', t:'Perfil Seguro',  d:'Avatar, senha forte e 2FA.'},
+  {n:3, e:'🎣', t:'Phishing',       d:'Ache os sinais e denuncie.'},
+  {n:4, e:'📰', t:'Fake News',      d:'Separe mentira de verdade.'},
+  {n:5, e:'🚀', t:'Defesa Digital', d:'Space shooter contra vírus.'}
+];
+
+window.goPhase=function(n){
+  closeModal();
+  n=Math.max(1,Math.min(TOTAL,parseInt(n,10)||1));
+  S.phase=n;
+  [p1,p2,p3,p4,p5][n-1]();
+  toast('🗺️ Iniciando fase '+n+' de '+TOTAL,'good');
+};
+
+window.showMissions=function(){
+  const done=S.done.size;
+  modal({
+    emo:'🗺️', title:'MAPA DE MISSÕES',
+    body:`Jogue <b>qualquer fase</b>, na ordem que quiser.<br>
+      <span class="muted">Concluídas <b>${done}/${TOTAL}</b> · Pontos <b>${S.score}</b> · Vidas <b>${S.lives}</b></span>
+      <div class="maplist">${PHASE_INFO.map(p=>`
+        <button class="maprow ${S.done.has(p.n)?'done':''} ${S.phase===p.n?'cur':''}"
+                data-goto="${p.n}">
+          <span class="mi">${p.e}</span>
+          <span class="mt"><b>${p.n}. ${p.t}</b><small>${p.d}</small></span>
+          <span class="ms">${S.done.has(p.n)?'✅':(S.phase===p.n?'▶ AGORA':'JOGAR')}</span>
+        </button>`).join('')}</div>
+      <button class="btn ok" style="width:100%;margin-top:10px" data-final="1">
+        🏁 Ver tela final${done<TOTAL?` (${done}/${TOTAL})`:' ✅'}</button>`,
+    btns:[{t:'↩ Voltar', cls:'btn ghost'}]
+  });
+  $$('.modal [data-goto]').forEach(b=>
+    b.addEventListener('click',()=>window.goPhase(+b.dataset.goto)));
+  const f=$('.modal [data-final]');
+  if(f) f.addEventListener('click',()=>{ closeModal(); finalScreen(); });
+};
+
+function phaseName(p){
+  return ['','🧠 1/5 · Memória','👤 2/5 · Perfil Seguro','🎣 3/5 · Phishing','📰 4/5 · Fake News','🚀 5/5 · Defesa Digital'][p]||'';
+}
+
+function screen(html){ clearTimers(); app.innerHTML=html; hud(); const tb=document.getElementById('tbTask'); if(tb) tb.innerHTML='📁 '+(BOOTED?phaseName(S.phase)||'Menu':'—'); }
+
+function modal({emo='🤖',title='',body='',btns=[]}){
+  closeModal();
+  const m=document.createElement('div');
+  m.className='modal';
+  m.innerHTML=`<div class="box"><div class="big-emo">${emo}</div>
+    <h2 style="font-size:1.4rem;margin:8px 0">${title}</h2>
+    <div class="muted" style="margin-bottom:6px">${body}</div>
+    <div class="btn-row">${btns.map((b,i)=>`<button class="${b.cls||'btn'}" data-i="${i}">${b.t}</button>`).join('')}</div></div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    const it=btns[+b.dataset.i]; closeModal();
+    if(it&&it.act) it.act();
+  });
+}
+function closeModal(){ $$('.modal').forEach(m=>m.remove()); }
+
+function confetti(){
+  const c=document.createElement('div'); c.className='confetti'; document.body.appendChild(c);
+  const cols=['#00f0ff','#a855f7','#ff3ea5','#25f4a7','#ffd93d'];
+  for(let i=0;i<80;i++){
+    const b=document.createElement('div'); b.className='cbit';
+    b.style.left=Math.random()*100+'vw'; b.style.top='-20px';
+    b.style.background=rnd(cols);
+    b.style.animationDuration=(1.5+Math.random()*1.9)+'s';
+    b.style.animationDelay=(Math.random()*.6)+'s';
+    c.appendChild(b);
+  }
+  t(()=>c.remove(),4200);
+}
+
+function loseLife(msg){
+  if(S.lives<=0) return;
+  S.lives--; sfxBad();
+  const hb=$('.hearts'); if(hb){ hb.classList.add('pop'); t(()=>hb.classList.remove('pop'),500); }
+  hud();
+  if(S.lives<=0){
+    toast('💔 Sem vidas!','bad');
+    // setTimeout puro: o modal precisa aparecer mesmo se a fase re-renderizar
+    setTimeout(()=>modal({
+      emo:'💔', title:'VOCÊ PERDEU TODAS AS VIDAS',
+      body: msg||'Mas todo agente pode se reerguer. Tente novamente!',
+      btns:[
+        {t:'💚 Continuar com 2 vidas', cls:'btn ok', act:()=>{ S.lives=2; hud(); retryHook(); }},
+        {t:'↺ Reiniciar jogo', cls:'btn primary', act:()=>startGame()}
+      ]
+    }),500);
+    return;
+  }
+  toast(msg||'💔 Você perdeu uma vida!','bad');
+}
+
+/* ============================ HUD FIXO =============================== */
+const HUD='<div class="hud" id="hud"></div>';
+
+/* ============================== MENU ================================= */
+function menu(){
+  S.phase=0;
+  screen(HUD+`
+  <div class="hero">
+    <div class="lock">🔐</div>
+    <div class="brand"><h1>CIBERDEFESA</h1></div>
+    <div class="brand"><div class="sub">Jogo educativo de Segurança Digital</div></div>
+    <p class="muted" style="margin:14px auto 0;max-width:560px">
+      Você é o agente <b style="color:var(--cyan)">ZERO-DAY</b>. Complete <b>5 missões</b>,
+      aprenda a se defender e descubra como vivir de forma segura no mundo digital.</p>
+    <div class="btn-row">
+      <button class="btn big primary" onclick="startGame()">▶ INICIAR MISSÃO</button>
+      <button class="btn big" onclick="showMissions()">🗺️ Escolher fase</button>
+      <button class="btn big ghost" onclick="showTutorial(true)">📖 Tutorial</button>
+    </div>
+    <div class="menu-grid">
+      <div class="mcard"><div class="n">🧠</div><b>1. Memória</b><small>Crie e repita sua sequência com precisão.</small></div>
+      <div class="mcard"><div class="n">👤</div><b>2. Perfil Seguro</b><small>Monte o avatar e aplique senhas e 2FA.</small></div>
+      <div class="mcard"><div class="n">🎣</div><b>3. Phishing</b><small>Ache os sinais e denuncie os golpes.</small></div>
+      <div class="mcard"><div class="n">📰</div><b>4. Fake News</b><small>Separe mentiras de verdade no feed.</small></div>
+      <div class="mcard"><div class="n">🚀</div><b>5. Defesa Digital</b><small>Space shooter contra vírus e malware.</small></div>
+    </div>
+  </div>`);
+}
+
+/* ============================= TUTORIAL ============================== */
+const TUTS=[
+  ['🔐','Senhas fortes','Use senha com 8+ caracteres, misturando maiúsculas, minúsculas, números e símbolos. Nunca use "123456", seu nome ou sua data de nascimento.'],
+  ['📱','Ative o 2FA','A verificação em duas etapas exige um código além da senha. Ela bloqueia a grande maioria dos ataques automatizados.'],
+  ['🎣','Desconfie de phishing','Remetente estranho, urgência, prêmio e pedido de senha são bandeiras vermelhas. Nunca senha para alguém.'],
+  ['📰','Verifique as notícias','Confira a fonte, a data, o autor e as evidências antes de compartilhar. Título exagerado = suspeita.'],
+  ['🔗','Não clique em links suspeitos','Digite o endereço do site você mesmo. Downloads, prêmios e cobranças inesperadas são iscas.'],
+  ['⬆️','Mantenha dispositivos atualizados','As atualizações corrigem falhas de segurança. Recusar atualização é deixar a porta destrancada.'],
+  ['🎮','Como jogar','Cada fase tem um objetivo. Você tem 3 vidas: errar custa vida. No celular, arraste com o dedo e use os botões na fase 5.']
+];
+function showTutorial(fromMenu){
+  let i=0;
+  const draw=()=>{
+    const [e,ti,d]=TUTS[i];
+    modal({emo:e,title:ti,
+      body:d+`<br><br><span class="muted">${i+1} de ${TUTS.length}</span>`,
+      btns:[
+        {t:'◀ Anterior',cls:'btn ghost',act:()=>{ i=(i-1+TUTS.length)%TUTS.length; draw(); }},
+        {t:i===TUTS.length-1?(fromMenu?'Voltar ao menu':'COMEÇAR!'):'Próximo ▶',cls:'btn primary',act:()=>{
+          if(i===TUTS.length-1){ fromMenu?menu():startGame(); } else { i++; draw(); } }}
+      ]});
+  };
+  draw();
+}
+
+/* ========================== MOTOR DAS FASES ========================== */
+function startGame(){ closeModal(); S.lives=3; S.score=0; S.done=new Set(); S.phase=1; p1(); }
+
+function completePhase(n){
+  S.done.add(n);
+  addScore(200);
+  const bonus=S.lives*50;
+  addScore(bonus);
+  confetti(); sfxGood();
+  if(n===TOTAL){ finalScreen(); return; }
+  S.phase=n+1;
+  modal({emo:'🏆',title:'FASE '+n+' CONCLUÍDA!',
+    body:`Bônus de fase <b>+200</b> · Bônus de vidas <b>+${bonus}</b><br><span class="muted">Próxima missão liberada.</span>`,
+    btns:[{t:'▶ Próxima fase',cls:'btn primary',act:()=>p2start()}]});
+}
+function p2start(){ closeModal(); [p1,p2,p3,p4,p5][S.phase-1](); }
+
+/* =====================================================================
+   FASE 1 — MEMÓRIA PERSONALIZADA
+   Cria a própria sequência (mín. 3) → observa → repete na ordem.
+   Rodadas de 3 → 4 → 5 → 6. Cronômetro + streak de bônus.
+   ===================================================================== */
+const ANIMAIS=[
+  {e:'🐱',n:'GATO'}, {e:'🐶',n:'CACHORRO'},
+  {e:'🦁',n:'LEÃO'}, {e:'🐯',n:'TIGRE'}
+];
+const R1={chosen:[],seq:[],round:0,phase:'pick',input:[],streak:0,best:0};
+const SIZES=[3,4,5,6];
+
+function p1(){
+  S.phase=1; setRetry(()=>p1());
+  R1.chosen=[]; R1.seq=[]; R1.round=0; R1.phase='pick'; R1.input=[]; R1.streak=0;
+  screen(HUD+`
+  <div class="panel">
+    <h2 class="ptitle"><span class="badge">FASE 1</span> Memória Personalizada 🧠</h2>
+    <p class="muted" id="p1msg">Clique nos animais para montar <b>sua sequência</b> (mínimo 3, máximo 4).</p>
+
+    <div class="rounds" id="p1rounds">${SIZES.map((_,i)=>`<div class="rd" id="rd${i}"></div>`).join('')}</div>
+
+    <div class="mem-grid" id="p1grid">
+      ${ANIMAIS.map((a,i)=>`<div class="mem-animal" data-i="${i}">
+        <span class="e">${a.e}</span><span class="l">${a.n}</span></div>`).join('')}
+    </div>
+
+    <div class="timebar hide" id="p1timewrap"><i id="p1time"></i></div>
+    <div class="seq-box" id="p1seq"></div>
+    <div class="streak" id="p1streak"></div>
+
+    <div class="btn-row">
+      <button class="btn primary" id="p1go" onclick="p1Go()" disabled>Ver sequência ▶</button>
+      <button class="btn ghost hide" id="p1rev" onclick="p1Rev()">↺ Rever</button>
+      <button class="btn ghost hide" id="p1ok" onclick="p1Check()">✓ Confirmar</button>
+    </div>
+  </div>`);
+  p1PickUI();
+}
+
+function p1PickUI(){
+  R1.phase='pick'; R1.input=[];
+  $('#p1msg').innerHTML='Clique nos animais para montar <b>sua sequência</b> (mínimo 3, máximo 4).';
+  $('#p1go').classList.remove('hide'); $('#p1go').disabled=true;
+  $('#p1ok').classList.add('hide'); $('#p1rev').classList.add('hide');
+  $('#p1timewrap').classList.add('hide');
+  p1Grid();
+  $('#p1seq').innerHTML='<span class="muted" style="font-size:.82rem">Monte sua sequência acima…</span>';
+}
+
+function p1Grid(){
+  $('#p1grid').innerHTML=ANIMAIS.map((a,i)=>`
+    <div class="mem-animal ${R1.phase!=='pick'?'locked':''} ${R1.chosen.includes(i)?'picked':''}" data-i="${i}">
+      <span class="e">${a.e}</span><span class="l">${a.n}</span></div>`).join('');
+}
+
+function p1Click(i){
+  if(R1.phase!=='pick') return;
+  if(R1.chosen.includes(i)) R1.chosen=R1.chosen.filter(x=>x!==i);
+  else if(R1.chosen.length<4) R1.chosen.push(i);
+  else { toast('Máximo de 4 animais','warn'); return; }
+  sfx(500+i*45,.05);
+  $('#p1go').disabled=R1.chosen.length<3;
+  p1Grid();
+  $('#p1seq').innerHTML=R1.chosen.map(x=>`<div class="seq-slot on"><span class="se">${ANIMAIS[x].e}</span><span class="sn">${ANIMAIS[x].n}</span></div>`).join('');
+}
+
+window.p1Go=function(){
+  if(R1.chosen.length<3) return;
+  const size=SIZES[R1.round];
+  const pool=R1.chosen.slice(), seq=[];
+  while(seq.length<size) seq.push(pool[seq.length%pool.length]);
+  R1.seq=seq; R1.round++;
+  R1.chosen=[];        // limpa a seleção para a próxima rodada
+  $('#p1go').classList.add('hide');
+  p1Show();
+};
+
+function p1Show(){
+  R1.phase='show'; R1.input=[];
+  $('#p1msg').innerHTML=`<b>Rodada ${R1.round}/${SIZES.length}</b> — Memorize a ordem dos <b>${R1.seq.length}</b> animais!`;
+  $('#p1seq').innerHTML=R1.seq.map((_,i)=>`<div class="seq-slot" id="ps${i}"></div>`).join('');
+  p1Grid();
+  $('#p1timewrap').classList.add('hide');
+  for(let i=0;i<SIZES.length;i++) $('#rd'+i).classList.toggle('on', i<R1.round-1);
+
+  R1.seq.forEach((ai,i)=>t(()=>{
+    const s=$('#ps'+i); if(!s||R1.phase!=='show') return;
+    s.classList.add('on');
+    s.innerHTML=`<span class="se">${ANIMAIS[ai].e}</span><span class="sn">${ANIMAIS[ai].n}</span>`;
+    sfx(420+ai*55,.08);
+  },420+i*760));
+
+  t(()=>{ if(R1.phase!=='show') return; p1Input(); }, 420+R1.seq.length*760+620);
+}
+
+function p1Input(){
+  R1.phase='input'; R1.input=[]; R1.tLeft=150; R1.tMax=150;
+  $('#p1msg').innerHTML=`<b>Rodada ${R1.round}/${SIZES.length}</b> — Repita na <b>mesma ordem</b>! Há <b>${R1.seq.length}</b> animais.`;
+  $('#p1seq').innerHTML=R1.seq.map((_,i)=>`<div class="seq-slot" id="ps${i}"></div>`).join('');
+  $('#p1ok').classList.remove('hide');
+  $('#p1timewrap').classList.remove('hide');
+  p1Grid();
+  p1Timer();
+  p1StartClock();
+}
+
+let R1TIMER=null;
+function p1Timer(){
+  const w=$('#p1timewrap'), bar=$('#p1time');
+  if(!bar) return;
+  bar.style.width=(R1.tLeft/R1.tMax*100)+'%';
+  w.classList.toggle('low', R1.tLeft<=45);
+}
+function p1StartClock(){
+  if(R1TIMER) clearInterval(R1TIMER);
+  R1TIMER=every(()=>{
+    if(R1.phase!=='input'||S.phase!==1){ clearInterval(R1TIMER); R1TIMER=null; return; }
+    R1.tLeft--;
+    if(R1.tLeft<=0){ R1.tLeft=0; p1Timeout(); }
+    else if(R1.tLeft===30) toast('⏰ 30 segundos!','warn');
+    p1Timer();
+  },1000);
+}
+
+function p1Timeout(){
+  R1.phase='over';
+  $$('#p1seq .seq-slot').forEach((s,i)=>{
+    s.classList.add('miss');
+    s.innerHTML=`<span class="se">${ANIMAIS[R1.seq[i]].e}</span>`;
+  });
+  loseLife('⏰ Tempo esgotado! A ordem correta era a mostrada no início.');
+  R1.streak=0; p1StreakUI();
+  if(S.lives>0) t(()=>{ if(S.phase===1){ $('#p1rev').classList.remove('hide'); $('#p1ok').classList.remove('hide'); } },700);
+}
+
+window.p1Rev=function(){
+  R1.phase='show'; R1.input=[];
+  t(()=>p1Show(),40);
+};
+
+window.p1Check=function(){
+  if(R1.phase!=='input') return;
+  R1.phase='check';
+  const slots=$$('#p1seq .seq-slot');
+  R1.input.forEach((v,i)=>{
+    const s=slots[i]; if(!s) return;
+    s.innerHTML=`<span class="se">${ANIMAIS[v].e}</span>`;
+    s.classList.add(v===R1.seq[i]?'hit':'miss');
+  });
+
+  const ok=R1.input.length===R1.seq.length && R1.input.every((v,i)=>v===R1.seq[i]);
+  if(ok){
+    R1.streak++; R1.best=Math.max(R1.best,R1.streak);
+    const timeBonus=Math.round(R1.tLeft/R1.tMax*60);
+    const streakBonus=R1.streak*40;
+    const pts=100+R1.seq.length*30+timeBonus+streakBonus;
+    addScore(pts); sfxGood();
+    $('#p1msg').innerHTML=`<b style="color:var(--green)">✅ Correto!</b> +${pts} pts (tempo +${timeBonus}, streak +${streakBonus})`;
+    $('#p1ok').disabled=true;
+    for(let i=0;i<SIZES.length;i++) $('#rd'+i).classList.toggle('on', i<R1.round);
+    p1StreakUI();
+    if(R1.round>=SIZES.length){
+      if(R1.best===SIZES.length) addScore(150);
+      t(()=>completePhase(1),1000);
+    }else{
+      t(()=>{ if(S.phase===1){ $('#p1ok').disabled=false; p1PickUI(); } },1500);
+    }
+  }else{
+    R1.streak=0; p1StreakUI(); sfxBad();
+    $('#p1msg').innerHTML='<b style="color:var(--red)">❌ Ordem incorreta!</b> Compare os slots verdes e vermelhos.';
+    loseLife('❌ Ordem incorreta! Veja onde errou e tente de novo.');
+    if(S.lives>0){
+      t(()=>{ if(S.phase===1){ $('#p1ok').disabled=false; $('#p1rev').classList.remove('hide'); } },800);
+    }
+  }
+};
+
+function p1StreakUI(){
+  $('#p1streak').innerHTML = R1.streak>1
+    ? `🔥 STREAK x${R1.streak} — bônus de +${(R1.streak-1)*40} pts por rodada!`
+    : '';
+}
+
+document.addEventListener('click',e=>{
+  const el=e.target.closest('#p1grid .mem-animal'); if(!el) return;
+  const i=+el.dataset.i;
+  if(R1.phase==='pick'){ p1Click(i); return; }
+  if(R1.phase==='input'){
+    if(R1.input.length>=R1.seq.length) return;
+    const cur=R1.input.length;
+    R1.input.push(i);
+    const s=$('#ps'+cur);
+    el.classList.add('press'); t(()=>el.classList.remove('press'),260);
+    sfx(560+i*40,.06);
+    $('#p1msg').innerHTML=`Selecionados: <b>${R1.input.length}/${R1.seq.length}</b>`;
+    if(R1.input.length===R1.seq.length) t(()=>p1Check(),430);
+  }
+});
+
+
+/* =====================================================================
+   FASE 2 — PERFIL SEGURO
+   Três passos curtos e bem explicados. Tudo funciona com UM CLIQUE
+   (arrastar continua disponível, mas é opcional).
+   ===================================================================== */
+
+/* ---- Passo 1: avatar ---- */
+const PARTES=[
+  {id:'c1', e:'🧑‍🚀', t:'Cabelo Astronauta', slot:'s-cabelo'},
+  {id:'c2', e:'👱',   t:'Cabelo Livre',     slot:'s-cabelo'},
+  {id:'o1', e:'👀',   t:'Olhos Atentos',    slot:'s-olhos'},
+  {id:'o2', e:'🕶️',   t:'Óculos Escuros',   slot:'s-olhos'},
+  {id:'b1', e:'😎',   t:'Sorriso Forte',    slot:'s-boca'},
+  {id:'b2', e:'🗣️',   t:'Sorriso Amigo',    slot:'s-boca'},
+  {id:'r1', e:'👕',   t:'Camiseta-tech',    slot:'s-corpo'},
+  {id:'r2', e:'🧥',   t:'Jaqueta Blindada', slot:'s-corpo'}
+];
+const SLOTS=[
+  {id:'s-cabelo', nome:'Cabelo',  vazio:'💇'},
+  {id:'s-olhos',  nome:'Olhos',   vazio:'👁️'},
+  {id:'s-boca',   nome:'Boca',    vazio:'👄'},
+  {id:'s-corpo',  nome:'Corpo',   vazio:'👕'}
+];
+const SLOT_IDS=SLOTS.map(s=>s.id);
+
+/* ---- Passo 3: proteção do perfil (3 seguras, 3 perigosas) ---- */
+const OPCOES=[
+  {id:'s1', e:'🔑', t:'Senha forte e diferente para cada site', safe:true,
+   rule:'Senhas únicas', why:'Se um site vaza, as outras contas continuam seguras.'},
+  {id:'s2', e:'📱', t:'Ativar a verificação em 2 etapas (2FA)', safe:true,
+   rule:'2FA ativado', why:'Pede um código extra: mesmo com a senha, não entram.'},
+  {id:'s3', e:'🔒', t:'Deixar o perfil privado (só amigos veem)', safe:true,
+   rule:'Perfil privado', why:'Não expõe seus dados para desconhecidos.'},
+  {id:'d1', e:'🔓', t:'Usar a senha 123456', safe:false,
+   why:'"123456" está entre as senhas mais hackeadas do mundo.'},
+  {id:'d2', e:'📤', t:'Enviar minha senha para um amigo', safe:false,
+   why:'Ninguém legítimo pede a sua senha. Isso é golpe!'},
+  {id:'d3', e:'🌍', t:'Deixar o perfil público para todo mundo ver', safe:false,
+   why:'Perfis públicos entregam dados que os-REAIS usam contra você.'}
+];
+const OPCOES_SAFE=OPCOES.filter(o=>o.safe);
+
+/* ---- Passo 2: senha ---- */
+const PW_REGRAS=[
+  {t:'Pelo menos 8 caracteres', ok:p=>p.length>=8},
+  {t:'Uma letra maiúscula',     ok:p=>/[A-Z]/.test(p)},
+  {t:'Uma letra minúscula',     ok:p=>/[a-z]/.test(p)},
+  {t:'Um número',               ok:p=>/[0-9]/.test(p)},
+  {t:'Um símbolo (! @ # $ …)',  ok:p=>/[!@#$%&*?]/.test(p)}
+];
+/* Botões: cada um adiciona um caractere daquela categoria */
+const PW_BOTOES=[
+  {k:'maiúscula',  ex:'A-Z',  pool:'ABCDEFGHJKLMNPQRSTUVXZ'},
+  {k:'minúscula',  ex:'a-z',  pool:'abcdefghijkmnopqrstuvxz'},
+  {k:'número',     ex:'0-9',  pool:'23456789'},
+  {k:'símbolo',    ex:'!@#',  pool:'!@#$%&*?'}
+];
+const SENHAS_COMUNS=['123456','123456789','12345678','qwerty','senha','senha123',
+                     'abc123','111111','password','admin','gato','cachorro'];
+
+const R2={step:1, sel:null, filled:{}, usadas:new Set(), riscos:[], pw:'', cracks:0, hack:0, hacking:false};
+
+function p2(){
+  S.phase=2; setRetry(()=>p2());
+  R2.step=1; R2.sel=null; R2.filled={}; R2.usadas=new Set();
+  R2.riscos=[]; R2.pw=''; R2.cracks=0; R2.hack=0; R2.hacking=false;
+  clearInterval(R2.int);
+  p2Render();
+}
+
+/* ---------------- objetivos de cada passo ---------------- */
+const P2_OBJ={
+  1:{txt:'Clique numa parte do corpo e depois no espaço do avatar. Preencha os 4 espaços.',
+     dica:'💡 Também vale arrastar. Se errar o espaço, nada acontece de ruim.'},
+  2:{txt:'Clique nos botões para montar uma senha forte. Ela precisa ter 5 coisas:',
+     dica:'💡 Não sabe? Clique em "Gerar senha forte" e veja como fica.'},
+  3:{txt:'Clique nas 3 opções SEGURAS (verde) para proteger seu perfil. As vermelhas dão alerta.',
+     dica:'💡 Leia o texto de cada opção antes de clicar.'}
+};
+
+function p2Render(){
+  const st=R2.step;
+  screen(HUD+`
+  <div class="panel">
+    <h2 class="ptitle"><span class="badge">FASE 2</span> Perfil Seguro 👤
+      <span class="tag">Passo ${st} de 3</span></h2>
+
+    <div class="steps">
+      ${['👤 Montar avatar','🔑 Criar senha forte','🔒 Proteger perfil'].map((n,i)=>
+        `<div class="step ${i+1<st?'done':''} ${i+1===st?'cur':''}">
+           ${i+1<st?'✅':(i+1)+'.'} ${n}</div>`).join('')}
+    </div>
+
+    <div class="objetivo">
+      <b>🎯 Objetivo:</b> ${P2_OBJ[st].txt}
+      <div class="odica">${P2_OBJ[st].dica}</div>
+    </div>
+
+    ${p2Body()}
+    <div class="checks" id="p2checks"></div>
+
+    <div class="btn-row">
+      <button class="btn primary hide" id="p2go" onclick="p2Go()">▶ Próximo passo</button>
+      <button class="btn ok hide" id="p2finish" onclick="p2Finish()">🔍 Auditar perfil</button>
+    </div>
+  </div>`);
+  p2Checks();
+  if(st===2) p2StartHacker();
+}
+
+function p2Body(){
+  if(R2.step===1) return `
+    <div class="avatar-stage">
+      <div id="avatarBox">
+        ${SLOTS.map(s=>`
+          <div class="slot ${R2.filled[s.id]?'filled':''} ${R2.sel&&PARTE_SLOT(R2.sel)===s.id?'alvo':''}"
+               id="${s.id}" data-drop="${s.id}" onclick="p2Place('${s.id}')">
+            <span class="ph">${s.vazio}</span>
+            <span class="it">${R2.filled[s.id]?PARTE_BY(R2.filled[s.id]).e:''}</span>
+          </div>`).join('')}
+      </div>
+      <div class="tray" id="p2tray">
+        ${PARTES.map(p=>`
+          <div class="piece ${R2.usadas.has(p.id)?'used':''} ${R2.sel===p.id?'sel':''}"
+               data-drag="p" data-id="${p.id}" onclick="p2Pick('${p.id}')">
+            <span class="e">${p.e}</span>${p.t}</div>`).join('')}
+        <div class="muted" style="width:100%;font-size:.78rem" id="p2hint"></div>
+      </div>
+    </div>`;
+
+  if(R2.step===2) return `
+    <div class="pwbox">
+      <div class="pwfield empty" id="p2field">sua senha aparece aqui</div>
+      <div class="pwbar"><i id="p2bar"></i></div>
+      <div class="pwlabel" id="p2label">Ainda vazia</div>
+
+      <div class="reqs" id="p2reqs">
+        ${PW_REGRAS.map((r,i)=>`<div class="req" id="req-${i}">⬜ ${r.t}</div>`).join('')}
+      </div>
+
+      <div class="keypad" id="p2keys">
+        ${PW_BOTOES.map(b=>`<button class="key" onclick="p2Char('${b.k}')">
+          <b>+ ${b.ex}</b><br><span style="font-weight:400;font-size:.7rem">${b.k}</span></button>`).join('')}
+        <button class="key del" onclick="p2Del()">⌫<br><span style="font-weight:400;font-size:.7rem">apagar</span></button>
+        <button class="key" onclick="p2Gen()" style="border-color:#2e7d3c;color:#2e7d3c">
+          🎲<br><span style="font-weight:400;font-size:.7rem">gerar forte</span></button>
+      </div>
+
+      <div class="hacker">
+        <div class="hrow"><span>🕵️</span><b>Hacker tentando descobrir sua senha…</b>
+          <span class="tag" id="p2tleft" style="margin-left:auto">—</span></div>
+        <div class="hackbar" id="p2hackbar"><i id="p2hack"></i></div>
+        <div class="muted" style="font-size:.75rem;margin-top:6px" id="p2hackmsg">
+          Senha fraca é achada em segundos. Senha forte leva <b>anos</b>.</div>
+      </div>
+    </div>`;
+
+  return `
+    <div id="p2panel" data-drop="perfil" class="protect">
+      <div class="plog"><b>🔒 Proteções ativas: <span id="p2count">${OPCOES_SAFE.filter(o=>R2.usadas.has(o.id)).length}</span>/3</b></div>
+      <div class="prot-list" id="p2prot">
+        ${OPCOES.filter(o=>R2.usadas.has(o.id)).map(o=>o.safe
+            ? `<div class="prot"><span>${o.e}</span><b>${o.rule}</b></div>`
+            : `<div class="prot bad"><span>🚫</span><b>Opção perigosa recusada</b></div>`).join('')}
+      </div>
+      <div id="p2alert">
+        ${R2.riscos.length?`<div class="alert-box">⚠️ <b>NÃO FAÇA ISSO:</b> ${OPC_BY(R2.riscos[R2.riscos.length-1]).why}</div>`:''}
+      </div>
+    </div>
+    <div class="tray" id="p2tray">
+      ${OPCOES.map(o=>`
+        <div class="card ${o.safe?'safe':'bad'} ${R2.usadas.has(o.id)?'used':''}"
+             data-drag="o" data-id="${o.id}" onclick="p2Pick('${o.id}')">
+          <span class="e">${o.e}</span>${o.t}
+          <div class="why">${o.why}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function PARTE_BY(id){ return PARTES.find(p=>p.id===id); }
+function PARTE_SLOT(id){ const p=PARTE_BY(id); return p?p.slot:null; }
+function OPC_BY(id){ return OPCOES.find(o=>o.id===id); }
+
+/* ---------- selecionar (clique) e aplicar ---------- */
+window.p2Pick=function(id){
+  if(R2.step===1) return p2PickParte(id);
+  if(R2.step===3) return p2PickOpcao(id);
+};
+
+function p2PickParte(id){
+  if(R2.usadas.has(id)) return;
+  R2.sel=R2.sel===id?null:id;
+  p2Render();
+  const h=$('#p2hint');
+  if(h) h.innerHTML = R2.sel
+    ? `<b style="color:var(--navy)">Agora clique no espaço de "${SLOT_BY(R2.sel).nome}"</b> no avatar (em destaque).`
+    : 'Clique numa parte para escolher, depois clique no espaço do avatar.';
+  if(R2.sel) sfx(560,.05);
+}
+function SLOT_BY(id){ return SLOTS.find(s=>s.id===PARTE_SLOT(id)); }
+
+function p2Place(slot){
+  if(!R2.sel){ toast('Primeiro escolha uma parte na lista','warn'); return; }
+  const p=PARTE_BY(R2.sel);
+  if(p.slot!==slot){
+    sfxBad();
+    $('#p2hint').innerHTML=`<b style="color:#a01818">✗ ${p.t} não vai no espaço de "${SLOT_BY(R2.sel).nome}"</b>. Escolha outra parte.`;
+    return;
+  }
+  const antigo=R2.filled[slot];
+  if(antigo) R2.usadas.delete(antigo);
+  R2.usadas.add(p.id);
+  R2.filled[slot]=p.id;
+  R2.sel=null;
+  addScore(25); sfx(620,.08);
+  p2Render();
+  if(SLOT_IDS.every(s=>R2.filled[s])){
+    toast('✅ Avatar pronto! Clique em Próximo passo.','good');
+    sfxGood();
+  }
+}
+
+function p2PickOpcao(id){
+  if(R2.usadas.has(id)) return;
+  const o=OPC_BY(id); if(!o) return;
+  R2.usadas.add(id);
+  if(o.safe){
+    sfxGood(); addScore(60);
+    p2Render();
+    toast('✅ '+o.why,'good');
+    if(OPCOES_SAFE.every(x=>R2.usadas.has(x.id))) sfxGood();
+  }else{
+    sfxBad();
+    R2.riscos.push(o.id);
+    loseLife('💔 '+o.why);
+    addScore(-25);
+    p2Render();
+    toast('🚨 '+o.why,'bad');
+  }
+}
+
+window.p2Go=function(){
+  if(R2.step===1){
+    if(!SLOT_IDS.every(s=>R2.filled[s])) return toast('Faltam espaços para preencher no avatar','warn');
+    R2.step=2; R2.sel=null; R2.pw=''; R2.hack=0; R2.cracks=0;
+    p2Render(); sfx(700,.1);
+    toast('🔑 Agora monte sua senha forte','good');
+  }else if(R2.step===2){
+    if(!R2.pwOk){ return toast('Sua senha ainda não tem tudo. Confira as 5 caixas acima.','warn'); }
+    R2.step=3; R2.sel=null; R2.hacking=false;
+    clearInterval(R2.int);
+    p2Render(); sfxGood();
+    toast('🔒 Agora proteja seu perfil','good');
+  }
+};
+
+/* ---------------- Passo 2: senha forte ---------------- */
+window.p2Char=function(k){
+  const b=PW_BOTOES.find(x=>x.k===k); if(!b) return;
+  if(R2.pw.length>=16) return toast('Máximo de 16 caracteres','warn');
+  R2.pw+=b.pool[Math.floor(Math.random()*b.pool.length)];
+  sfx(700+Math.random()*140,.05);
+  p2PW();
+};
+window.p2Del=function(){ R2.pw=R2.pw.slice(0,-1); sfx(300,.05); p2PW(); };
+window.p2Gen=function(){
+  // 1 caractere de cada categoria + 8 aleatórios = 12 no total
+  const base=PW_BOTOES.map(b=>b.pool[Math.floor(Math.random()*b.pool.length)]).join('');
+  let extra='';
+  for(let i=0;i<8;i++) extra+=PW_BOTOES[Math.floor(Math.random()*4)].pool[Math.floor(Math.random()*9)];
+  R2.pw=(base+extra).slice(0,12);
+  sfx(900,.12,'triangle',.04);
+  toast('🎲 Senha gerada: 12 caracteres, todos os tipos','good');
+  p2PW();
+};
+
+/* pontuação 0..5 */
+function p2Score(){ return PW_REGRAS.filter(r=>r.ok(R2.pw)).length; }
+function p2Tempo(){
+  const base=[0,2,5,40,600,4200][p2Score()]||0;
+  return Math.round(base+Math.max(0,R2.pw.length-6)*0.8);
+}
+function p2Comum(){
+  const p=R2.pw.toLowerCase();
+  if(!p) return null;
+  if(SENHAS_COMUNS.includes(p)) return 'Esta senha está na lista das mais usadas do mundo!';
+  if(/^\d+$/.test(p)) return 'Senha só com números é adivinhada rapidamente.';
+  if(/^(.)\1+$/.test(p)) return 'Repetir o mesmo caractere não aumenta a segurança.';
+  return null;
+}
+
+function p2PW(){
+  const f=$('#p2field'), bar=$('#p2bar'), lb=$('#p2label');
+  if(!f) return;
+  const sc=p2Score();
+  const cores=['#a01818','#a01818','#b8860b','#2e7d3c','#2e7d3c','#1f5fa8'];
+  const nomes=['Vazia','Muito fraca','Fraca','Razoável','Forte','Excelente'];
+
+  f.classList.toggle('empty',R2.pw.length===0);
+  f.classList.toggle('ok',sc===5);
+  f.textContent = R2.pw.length?R2.pw:'sua senha aparece aqui';
+  bar.style.width=(sc/5*100)+'%';
+  bar.style.background=cores[sc]||'#999';
+  lb.textContent = sc<5 ? `${sc}/5 — ${nomes[sc]}` : '5/5 — Excelente! 🏆';
+  lb.style.color=cores[sc]||'#000';
+
+  PW_REGRAS.forEach((r,i)=>{
+    const el=$('#req-'+i);
+    if(!el) return;
+    const ok=r.ok(R2.pw);
+    el.className='req'+(ok?' ok':'');
+    el.textContent=(ok?'✅ ':'⬜ ')+r.t;
+  });
+
+  const comum=p2Comum();
+  const msg=$('#p2hackmsg');
+  if(comum){ msg.innerHTML=`<b style="color:#ff8080">⚠️ ${comum}</b>`; }
+  else if(sc===5){ msg.innerHTML='<b style="color:#2e7d3c">🛡️ Mesmo um hacker forte levaria '+p2Fmt(p2Tempo())+' para descobrir isso.</b>'; }
+  else msg.innerHTML='Senha fraca é achada em segundos. Senha forte leva <b>anos</b>.';
+
+  R2.pwOk = (sc===5) && !comum;
+  if(R2.pwOk && $('#p2go') && $('#p2go').classList.contains('hide')){
+    $('#p2go').classList.remove('hide');
+    R2.hack=0; R2.hacking=false;
+    const h=$('#p2hack'); if(h) h.style.width='0%';
+    if(!R2.avisoOk){ R2.avisoOk=true; sfxGood(); toast('💪 Senha forte! O hacker desistiu.','good'); }
+  }else if(!R2.pwOk && $('#p2go')){
+    $('#p2go').classList.add('hide');
+    R2.avisoOk=false;
+  }
+  if(!R2.pwOk && R2.hacking) startHacking();
+}
+
+function p2Fmt(s){
+  if(s>=31536000) return (s/31536000).toFixed(1)+' anos';
+  if(s>=86400) return Math.round(s/86400)+' dias';
+  if(s>=3600) return (s/3600).toFixed(1)+' horas';
+  if(s>=60) return Math.round(s/60)+' minutos';
+  return s+' segundos';
+}
+
+function p2StartHacker(){ clearInterval(R2.int); R2.hacking=false; }
+function startHacking(){
+  if(R2.hacking) return;
+  R2.hacking=true; R2.hack=0;
+  const total=p2Tempo();
+  R2.int=setInterval(()=>{
+    if(S.phase!==2||R2.step!==2||!R2.hacking){ clearInterval(R2.int); R2.hacking=false; return; }
+    R2.hack=Math.min(100,R2.hack+100/total);
+    const bar=$('#p2hack'); if(bar) bar.style.width=R2.hack+'%';
+    const tb=$('#p2tleft'); if(tb) tb.textContent='~'+p2Fmt(Math.max(0,total*(1-R2.hack/100)));
+    if(R2.hack>=100) p2Quebrada();
+  },200);
+}
+
+function p2Quebrada(){
+  clearInterval(R2.int); R2.hacking=false;
+  R2.hack=0; R2.cracks++; R2.pw='';
+  const f=$('#p2field');
+  if(f){ f.classList.add('hacked'); t(()=>f.classList.remove('hacked'),450); }
+  const bar=$('#p2hack'); if(bar) bar.style.width='0%';
+  sfxBad();
+  toast('💀 O hacker entrou! Monte uma senha mais forte.','bad');
+  p2PW();
+  loseLife('💀 Sua senha fraca foi quebrada!');
+}
+
+/* ---------------- checklist / progresso ---------------- */
+function p2Checks(){
+  const el=$('#p2checks'); if(!el) return;
+  const go=$('#p2go');
+  if(R2.step===1){
+    const n=SLOT_IDS.filter(s=>R2.filled[s]).length;
+    el.innerHTML=SLOTS.map(s=>
+      `<div class="chk ${R2.filled[s.id]?'ok':'no'}">${R2.filled[s.id]?'✅':'⬜'} ${s.nome}</div>`).join('');
+    if(go) go.classList.toggle('hide', n<4);
+  }else if(R2.step===2){
+    el.innerHTML=PW_REGRAS.map(r=>`<div class="chk ${r.ok(R2.pw)?'ok':'no'}">${r.ok(R2.pw)?'✅':'⬜'} ${r.t}</div>`).join('');
+  }else{
+    const feitas=OPCOES_SAFE.filter(o=>R2.usadas.has(o.id));
+    el.innerHTML=OPCOES_SAFE.map(o=>`<div class="chk ${R2.usadas.has(o.id)?'ok':'no'}">${R2.usadas.has(o.id)?'✅':'⬜'} ${o.rule}</div>`).join('')
+      +(R2.riscos.length?`<div class="chk no">⚠️ Opções perigosas recusadas: ${R2.riscos.length}</div>`:'');
+    const f=$('#p2finish');
+    if(f) f.classList.toggle('hide', feitas.length<OPCOES_SAFE.length);
+  }
+}
+
+/* ---------------- arrastar (opcional; o clique já resolve) ---------------- */
+function p2Drop(id,target,el){
+  if(R2.step===1){
+    if(PARTE_SLOT(id)===target){ R2.sel=id; p2Place(target); }
+    else { sfxBad(); toast('Essa parte não vai nesse espaço','bad'); }
+  }else if(R2.step===3){
+    p2PickOpcao(id);
+  }
+}
+
+/* ---------------- auditoria final ---------------- */
+window.p2Finish=function(){
+  if(!OPCOES_SAFE.every(o=>R2.usadas.has(o.id))) return;
+
+  const sc=p2Score();
+  const ataques=[
+    ['🕵️','Tentativa de adivinhar a senha',
+      sc>=5?'bloqueado — senha forte':'conseguiu — senha fraca'],
+    ['🎣','Golpe pedindo sua senha',
+      R2.usadas.has('s2')?'bloqueado — 2FA exige um segundo fator':'passou — sem 2FA'],
+    ['🕷️','Alguém vasculhando seu perfil',
+      R2.usadas.has('s3')?'bloqueado — perfil privado':'vazou — perfil público']
+  ];
+
+  const penal=R2.riscos.length*60+R2.cracks*50;
+  const pts=Math.max(0,320-penal);
+  addScore(pts);
+
+  $('#p2msg') && ($('#p2msg').innerHTML='🔍 Relatório de auditoria');
+  const body=document.querySelector('#p2panel');
+  if(body) body.innerHTML=`
+    <div class="audit">
+      <div class="arow"><span>🔑</span><div><b>Senha: ${sc===5?'Excelente':'Fraca'} (${R2.pw.length} caracteres)</b><br>
+        <span class="muted" style="font-size:.78rem">O hacker levaria ${p2Fmt(p2Tempo())} para quebrá-la.
+        ${R2.cracks?`<b style="color:#a01818"> Ela já foi quebrada ${R2.cracks}×.</b>`:''}</span></div></div>
+      ${ataques.map(([e,t,d],i)=>`<div class="arow" style="animation-delay:${(i+1)*.13}s">
+        <span>${e}</span><div><b>${t}</b><br><span class="muted" style="font-size:.78rem">${d}</span></div></div>`).join('')}
+      <div class="arow"><span>⚠️</span><div><b>Opções perigosas recusadas: ${R2.riscos.length}</b><br>
+        <span class="muted" style="font-size:.78rem">${R2.riscos.length?'Você identificou as armadilhas.':'Nenhuma armadilha caiu em você.'}</span></div></div>
+    </div>`;
+
+  const btn=$('#p2finish');
+  btn.textContent=`Pontuação da fase: +${pts} pts`;
+  btn.className='btn primary';
+  btn.onclick=()=>completePhase(2);
+  sfxGood(); confetti();
+};
+
+function shake(sel){ const e=$(sel); if(e){ e.classList.add('shake'); t(()=>e.classList.remove('shake'),450); } }
+
+/* ---------------------- DRAG & DROP (mouse + touch) ------------------ */
+function bindDrag(){
+  $$('[data-drag]').forEach(el=>{
+    if(el._bound) return; el._bound=true;
+    el.addEventListener('pointerdown',dragStart);
+  });
+}
+
+function dragStart(e){
+  const el=e.currentTarget;
+  if(el.classList.contains('used')) return;
+  const ghost=$('#ghost');
+  const r=el.getBoundingClientRect();
+  let moved=false;
+  ghost.textContent=el.textContent.trim();
+  ghost.classList.remove('hide');
+  ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+  el.style.opacity='.35';
+
+  const move=ev=>{
+    moved=true;
+    ghost.style.left=ev.clientX+'px'; ghost.style.top=ev.clientY+'px';
+    const z=zoneAt(ev.clientX,ev.clientY);
+    $$('.slot,#profilePanel,#trashZone').forEach(x=>x.classList.remove('over'));
+    if(z) z.classList.add('over');
+  };
+  const up=ev=>{
+    document.removeEventListener('pointermove',move);
+    document.removeEventListener('pointerup',up);
+    ghost.classList.add('hide'); el.style.opacity='';
+    $$('.slot,#profilePanel,#trashZone').forEach(x=>x.classList.remove('over'));
+    const z=zoneAt(ev.clientX,ev.clientY);
+    if(!z) return;
+    const name=z.dataset.drop;
+    if(S.phase===2) p2Drop(el.dataset.id,name,el);
+    else if(S.phase===4) p4Drop(+el.dataset.n,name,el);
+  };
+  document.addEventListener('pointermove',move);
+  document.addEventListener('pointerup',up);
+  e.preventDefault();
+}
+
+function zoneAt(x,y){
+  const stack=document.elementsFromPoint?document.elementsFromPoint(x,y):[document.elementFromPoint(x,y)];
+  for(const n of stack){
+    if(!n) continue;
+    if(n.classList&&n.classList.contains('slot')) return n;
+    if(n.id==='profilePanel'||n.id==='trashZone') return n;
+  }
+  return null;
+}
+
+
+/* =====================================================================
+   FASE 3 — DETECTOR DE PHISHING
+   4 mensagens com dificuldade crescente. Clique nos sinais suspeitos e
+   denuncie. Debrief educativo mostra o que ficou de fora.
+   ===================================================================== */
+const SIGN_EMOJI={premio:'🏆',urgencia:'⏰',link:'🔗',senha:'🔑',remetente:'👤',anexo:'📎'};
+const EMAILS=[
+  {from:'premioseuro@ganhe-tudo-agora.com.br',
+   subj:'🏆 PARABÉNS! Você ganhou R$ 1.000 — clique aqui',
+   body:'Parabéns!! <span class="sign" data-s="premio">Você foi premiado com R$ 1.000</span>! '+
+        '<span class="sign" data-s="link">Clique neste link</span> para receber o valor. '+
+        '<span class="sign" data-s="urgencia">Resgate em até 1 hora</span>!',
+   signs:[
+    {k:'premio',t:'PrêmioWarePromise',d:'Prêmio surpresa sem você ter participa de nada é golpe.'},
+    {k:'link',t:'Link encurtado',d:'Links curtos escondem o endereço real do site.'},
+    {k:'urgencia',t:'Urgência artificial',d:'Pressa é a ferramenta favorita dos fraudulentos.'}]},
+  {from:'segurobanco@bb-seguranca-oficial.net',
+   subj:'Sua conta foi bloqueada — confirme dados urgentemente',
+   body:'Detectamos acesso irregular. <span class="sign" data-s="remetente">Confira o remetente e o domínio</span> '.concat(
+        'e note que o domínio não é o oficial do banco. ').concat(
+        '<span class="sign" data-s="urgencia">Regularize em 2 horas</span> ou a conta será ').concat(
+        '<span class="sign" data-s="senha">suspensa — informe sua senha</span>. ').concat(
+        '<span class="sign" data-s="link">Acesse o link de recuperação</span>.'),
+   signs:[
+    {k:'remetente',t:'Domínio falso',d:'Bancos reais nunca mudam o domínio do e-mail.'},
+    {k:'urgencia',t:'Urgência',d:'ameaça de bloqueio para você agir sem pensar.'},
+    {k:'senha',t:'Pedido de senha',d:'Nenhum banco pede senha por e-mail ou telefone.'},
+    {k:'link',t:'Link de recuperação',d:'Vá ao site digitando o endereço, não pelo link.'}]},
+  {from:'rh@central-vagas-oficial.com',
+   subj:'🎯 Última hora: 5 vagas abertas para trabalho remoto',
+   body:'O <span class="sign" data-s="premio">processo seletivo foi anunciado</span>. '+
+        '<span class="sign" data-s="urgencia">As vagas fecham hoje</span>! '+
+        '<span class="sign" data-s="remetente">O domínio não pertence à empresa</span>. '+
+        'Clique <span class="sign" data-s="link">aqui para se candidatar</span> e '+
+        '<span class="sign" data-s="senha">envie sua senha e dados</span>.',
+   signs:[
+    {k:'premio',t:'Promessa de emprego',d:'Empresas não pedem cadastro por e-mail aleatório.'},
+    {k:'urgencia',t:'Última hora',d:'Urgência para você decidir rápido.'},
+    {k:'remetente',t:'Domínio falso',d:'Verifique o nome real da empresa.'},
+    {k:'link',t:'Link de candidatura',d:'Sites de vaga oficiais têm URL conhecida.'},
+    {k:'senha',t:'Pedido de senha',d:'Recrutadores legítimos nunca pedem senha.'}]},
+  {from:'it.suporte@micromoft-update-cloud.ru',
+   subj:'⚠️ Sua licença Windows expirou — anexar arquivo para renovar',
+   body:'<span class="sign" data-s="remetente">Remetente com domínio suspeito (.ru)</span>: a licença vence hoje. '+
+        '<span class="sign" data-s="anexo">Baixe o anexo "renovar_licença.zip"</span> e '+
+        '<span class="sign" data-s="senha">confirme sua senha de administrador</span>. '+
+        '<span class="sign" data-s="urgencia">Só até hoje</span>, sem o '.concat(
+        '<span class="sign" data-s="premio">prêmio de reembolso</span>.'),
+   signs:[
+    {k:'remetente',t:'Domínio falso (.ru)',d:'Microsoft usa microsoft.com — nunca .ru em e-mail.'},
+    {k:'anexo',t:'Anexo executável',d:'ZIP/EXE em e-mail é porta de entrada para vírus.'},
+    {k:'senha',t:'Pedido de senha',d:'Senha de administrador via e-mail = fraude certa.'},
+    {k:'urgencia',t:'Urgência',d:'ameaça de expiração.'},
+    {k:'premio',t:'Prêmio de reembolso',d:'Reembolso prometido para induzir a vítima.'}]}
+];
+
+const R3={idx:0,total:EMAILS.length};
+
+function p3(){
+  S.phase=3; setRetry(()=>p3());
+  R3.idx=0; p3Load();
+}
+
+/* separa o domínio do e-mail para destacar a parte suspeita */
+function splitMail(addr){
+  const at=addr.indexOf('@');
+  if(at<0) return {user:addr,dom:addr};
+  const dom=addr.slice(at+1);
+  const ponto=dom.lastIndexOf('.');
+  return {user:addr.slice(0,at), dom: ponto>0 ? dom.slice(0,ponto)+'<b>'+dom.slice(ponto)+'</b>' : dom};
+}
+
+const P3_DICA='Procure a <b>remetente</b>, <b>links</b>, <b>pedido de senha</b>, <b>prêmios</b> e <b>urgência</b>.';
+
+function p3Load(){
+  const m=EMAILS[R3.idx];
+  const mail=splitMail(m.from);
+  screen(HUD+`
+  <div class="panel">
+    <h2 class="ptitle"><span class="badge">FASE 3</span> Detector de Phishing 🎣
+      <span class="tag">E-mail ${R3.idx+1} de ${R3.total}</span></h2>
+
+    <div class="progress-dots">
+      ${EMAILS.map((_,i)=>`<div class="pdot ${i<R3.idx?'on':''} ${i===R3.idx?'cur':''}"></div>`).join('')}
+    </div>
+
+    <div class="objetivo">
+      <b>🎯 Objetivo:</b> toque nos trechos <b>suspeitos</b> em amarelo dentro do e-mail.
+      Depois clique em <b>🚨 DENUNCIAR</b>. Cada sinal encontrado dá pontos.
+      <div class="odica">💡 ${P3_DICA}</div>
+    </div>
+
+    <div class="mail" style="margin-top:12px">
+      <div class="mail-hd">
+        <div class="row"><span class="lbl">De:</span>
+          <span class="val"><span class="user">${mail.user}@</span><span class="dom">${mail.dom}</span></span></div>
+        <div class="row"><span class="lbl">Assunto:</span>
+          <span class="val subj">${m.subj}</span></div>
+      </div>
+      <div class="mail-bd" id="p3body">${m.body}</div>
+    </div>
+
+    <div class="huntlist">
+      <div class="hunt-hd">🔍 O QUE PROCURAR NESTE E-MAIL (${m.signs.length} sinais)</div>
+      <div id="p3hunt">
+        ${m.signs.map(s=>`
+          <button class="hunt" data-k="${s.k}">
+            <span class="box">✓</span>
+            <span class="txt">${SIGN_EMOJI[s.k]||'❓'} ${s.t}</span>
+          </button>`).join('')}
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn danger" id="p3rep" onclick="p3Report()">🚨 DENUNCIAR PHISHING</button>
+      <button class="btn ghost" onclick="p3Help()">💡 Dica</button>
+    </div>
+  </div>`);
+
+  $$('#p3body .sign').forEach(sp=>sp.addEventListener('click',()=>p3Found(sp)));
+  $$('#p3hunt .hunt').forEach(b=>b.addEventListener('click',()=>p3Jump(b.dataset.k)));
+  p3Sync();
+}
+
+/* marca um sinal como encontrado */
+function p3Found(sp){
+  if(sp.classList.contains('found')) return;
+  sp.classList.add('found');
+  sfx(720,.06);
+  p3Sync();
+  const m=EMAILS[R3.idx];
+  if($$('#p3body .sign.found').length===m.signs.length){
+    sfxGood(); confetti();
+    toast('🔎 Todos os sinais encontrados! Agora denuncie.','good');
+  }
+}
+
+/* mantém checklist e e-mail sincronizados */
+function p3Sync(){
+  const m=EMAILS[R3.idx];
+  const found=$$('#p3body .sign.found').map(e=>e.dataset.s);
+  $$('#p3hunt .hunt').forEach(b=>{
+    b.classList.toggle('done', found.includes(b.dataset.k));
+  });
+  const rep=$('#p3rep');
+  if(rep){
+    const n=found.length, tot=m.signs.length;
+    rep.disabled=n===0;
+    rep.textContent = n===0 ? `🚨 DENUNCIAR PHISHING — 0/${tot} sinais`
+                    : n===tot ? `🚨 DENUNCIAR — ${n}/${tot} sinais ✅`
+                              : `🚨 DENUNCIAR — ${n}/${tot} sinais`;
+  }
+}
+
+/* clicar no checklist mostra onde está o sinal no e-mail */
+function p3Jump(k){
+  const sp=$(`#p3body .sign[data-s="${k}"]`);
+  if(!sp) return;
+  sfx(400,.05);
+  if(typeof sp.scrollIntoView==='function') sp.scrollIntoView({block:'center',behavior:'smooth'});
+  sp.classList.add('flash');
+  t(()=>sp.classList.remove('flash'),750);
+}
+
+window.p3Help=function(){
+  modal({emo:'💡',title:'COMO ACHAR OS SINAIS',
+    body:`<div style="text-align:left;font-size:.86rem;line-height:1.7">
+      <b>1.</b> Olhe o remetente: o domínio é estranho?<br>
+      <b>2.</b> O texto cria pânico ou urgência?<br>
+      <b>3.</b> Tem link para clicar? Digite o site você mesmo.<br>
+      <b>4.</b> Pede sua senha, cartão ou dados? Nunca forneça.<br>
+      <b>5.</b> Promete prêmio sem você ter feito nada?
+      <br><br><b style="color:#a01818">Regra de ouro:</b> banco, órgão do governo e empresa de verdade
+      <b>nunca</b> pedem sua senha por e-mail ou WhatsApp.</div>`,
+    btns:[{t:'Entendi',cls:'btn primary'}]});
+};
+
+window.p3Report=function(){
+  const m=EMAILS[R3.idx];
+  const achados=$$('#p3body .sign.found').map(e=>e.dataset.s);
+  const total=m.signs.length;
+  if(achados.length===0){ toast('Marque ao menos um sinal antes de denunciar','warn'); return; }
+
+  const perfect=achados.length===total;
+  const pts=achados.length*35+(perfect?80:0);
+  addScore(pts);
+
+  const hit=m.signs.filter(s=>achados.includes(s.k));
+  const miss=m.signs.filter(s=>!achados.includes(s.k));
+  const line=s=>`<div class="dline ${achados.includes(s.k)?'hit':'missed'}">
+      <span style="font-size:1.05rem">${achados.includes(s.k)?'✅':'⚠️'}</span>
+      <div><b>${SIGN_EMOJI[s.k]||''} ${s.t}</b>
+        <span class="dsc">${s.d}</span></div></div>`;
+
+  const last=R3.idx===R3.total-1;
+  modal({
+    emo:perfect?'🕵️':'🚨',
+    title:perfect?'PHISHING IDENTIFICADO!':'DENÚNCIA ENVIADA',
+    body:`Você encontrou <b>${achados.length} de ${total}</b> sinais · <b style="color:#2e7d3c">+${pts} pontos</b>
+      <div class="debrief">
+        ${hit.length?`<div class="dh">✅ SINAIS QUE VOCÊ ENCONTROU (${hit.length})</div>`:''}
+        ${hit.map(line).join('')}
+        ${miss.length?`<div class="dh">⚠️ SINAIS QUE FICARAM PARA TRÁS (${miss.length})</div>`:''}
+        ${miss.map(line).join('')}
+      </div>`,
+    btns:[{t: last?'▶ Concluir fase':'Próximo e-mail ▶', cls:'btn primary', act:()=>{
+      if(last) completePhase(3); else { R3.idx++; p3Load(); }
+    }}]
+  });
+  if(perfect) confetti();
+  sfxGood();
+};
+
+/* =====================================================================
+   FASE 4 — FAKE NEWS
+   Feed com 10 publicações. Use o botão ANALISAR para ver as pistas
+   (fonte, data, título, evidências) e arraste só as FAKE NEWS para a lixeira.
+   Jogar uma notícia verdadeira na lixeira custa uma vida.
+   ===================================================================== */
+const NOTICIAS=[
+  {f:'Alerta Popular',hora:'há 2 h',
+   t:'URGENTE! Terremoto de magnitude 9 vai atingir o Brasil amanhã! 😱🌍',
+   d:'Sem órgão oficial, sem dado do instituto geográfico, título em caixa alta e pânico.',
+   fake:true, c:[['Fonte','Desconhecida / alarmista','bad'],['Data','Sem data verificável','bad'],
+                 ['Título','Caixa alta + urgência','bad'],['Evidências','Nenhuma','bad']]},
+  {f:'Ciência Hoje',hora:'há 1 dia',
+   t:'Cientistas provam que gatos conversam com plantas 🐱🌿',
+   d:'Título em idioma estranho, sem autor e sem revista científica.',
+   fake:true, c:[['Fonte','Site sem autoria','bad'],['Data','Não identificada','bad'],
+                 ['Título','Absurdo / sem sentido','bad'],['Evidências','Nenhum estudo real','bad']]},
+  {f:'Revista Ciência',hora:'há 2 dias',
+   t:'Estudo com 2.000 participantes associa sono adequado a melhor memória',
+   d:'Publicado em revista científica, com autores e metodologia descritos.',
+   fake:false, c:[['Fonte','Revista científica','good'],['Data','Há 2 dias','good'],
+                  ['Título','Informativo','good'],['Evidências','Estudo com amostra','good']]},
+  {f:'Rede Social',hora:'agora',
+   t:'A VACINA TÁ TAMPANDO A POBREZA 🤡💉 Zoeira total do governo!',
+   d:'Ofensa, zoeira e alarmismo: receita clássica de desinformação.',
+   fake:true, c:[['Fonte','Perfil anônimo','bad'],['Data','Sem data','bad'],
+                 ['Título','Ofensivo / sensacionalista','bad'],['Evidências','Opinião como notícia','bad']]},
+  {f:'Agência oficial',hora:'há 5 h',
+   t:'Governo federal lança programa de segurança digital em escolas',
+   d:'Comunicado com data, porta-voz nomeado e link para o documento.',
+   fake:false, c:[['Fonte','Agência oficial','good'],['Data','Há 5 horas','good'],
+                  ['Título','Objetivo','good'],['Evidências','Documento linkado','good']]},
+  {f:'Blog duvidoso',hora:'há 6 dias',
+   t:'10 coisas que o governo esconde de você — a #7 é assustadora',
+   d:'Lista com clickbait, sem fontes e escrita sensacionalista.',
+   fake:true, c:[['Fonte','Blog sem credibilidade','bad'],['Data','Antiga (6 dias)','bad'],
+                 ['Título','Clickbait ("#7 assustadora")','bad'],['Evidências','Nenhuma fonte','bad']]},
+  {f:'Banco Central',hora:'há 3 h',
+   t:'Banco Central divulga novas regras de segurança para o PIX',
+   d:'Comunicado oficial com números, datas e documento para consulta.',
+   fake:false, c:[['Fonte','Banco Central','good'],['Data','Há 3 horas','good'],
+                  ['Título','Factual','good'],['Evidências','Dados oficiais','good']]},
+  {f:'Página alarmista',hora:'há 1 h',
+   t:'ALERTA! Hackers vão DESLIGAR o WhatsApp de todo mundo em 24h! ⏰',
+   d:'Urgência e medo. Nenhum aviso oficial sobre desligamento do WhatsApp.',
+   fake:true, c:[['Fonte','Página sem credibilidade','bad'],['Data','Recente, sem registro','bad'],
+                 ['Título','Caixa alta + medo','bad'],['Evidências','Não existe','bad']]},
+  {f:'Jornal Regional',hora:'há 8 h',
+   t:'Pesquisa da universidade mostra queda de 20% nos casos de golpes online',
+   d:'Universidade citada, percentual e período informados.',
+   fake:false, c:[['Fonte','Universidade','good'],['Data','Há 8 horas','good'],
+                  ['Título','Factual com número','good'],['Evidências','Instituição identificada','good']]},
+  {f:'Humor da Internet',hora:'há 4 dias',
+   t:'Cientista confirma: quem usa senha "123456" ganha Nobel da Segurança 🏆',
+   d:'Absurdo, sem estudo e com piada de senha fraca — fake news disfarçada.',
+   fake:true, c:[['Fonte','Conta de humor','bad'],['Data','Sem data','bad'],
+                 ['Título','Absurdo','bad'],['Evidências','Nenhuma','bad']]}
+];
+
+const R4={list:[],fakesTotal:NOTICIAS.filter(n=>n.fake).length,achadas:0,riscos:0,bonusDado:false,sel:null};
+
+function p4(){
+  S.phase=4; setRetry(()=>p4());
+  R4.list=NOTICIAS.map((n,i)=>({...n,i,status:'pendente',aberta:false}))
+           .sort(()=>Math.random()-0.5);
+  R4.achadas=0; R4.riscos=0; R4.bonusDado=false; R4.sel=null;
+  p4Render();
+}
+
+function p4Render(){
+  const visiveis=R4.list.filter(n=>n.status!=='descartada');
+  const removidas=R4.list.filter(n=>n.status==='descartada');
+  const pendentes=visiveis.filter(n=>n.status==='pendente').length;
+  const sel=R4.sel!=null?R4.list.find(x=>x.i===R4.sel):null;
+
+  screen(HUD+`
+  <div class="panel">
+    <h2 class="ptitle"><span class="badge">FASE 4</span> Detector de Fake News 📰
+      <span class="tag">${pendentes} para analisar</span></h2>
+
+    <div class="objetivo">
+      <b>🎯 Objetivo:</b> encontre as <b>FAKE NEWS</b> e mande para a lixeira 🗑️.
+      As notícias verdadeiras precisam <b>ficar no feed</b>.
+      <div class="odica">💡 Toque em <b>🔍 Analisar</b> para ver as pistas (fonte, data, título, evidências)
+        antes de decidir. Depois toque em <b>🗑️ Marcar como falsa</b> e na lixeira.</div>
+    </div>
+
+    <div class="pbar">
+      <span class="pl">FAKES ENCONTRADAS</span>
+      <span class="pt"><i id="p4bar" style="width:${R4.fakesTotal?R4.achadas/R4.fakesTotal*100:0}%"></i></span>
+      <span class="pn" id="p4pn">${R4.achadas}/${R4.fakesTotal}</span>
+    </div>
+
+    <div class="feed-wrap" style="margin-top:8px">
+      <div>
+        <h3 style="font-size:.82rem;color:#1f5fa8;letter-spacing:1px;margin-bottom:6px">📱 SEU FEED</h3>
+        <div class="feed" id="p4feed">
+          ${visiveis.map(n=>p4Card(n)).join('') || '<div class="muted center" style="padding:24px">✅ Feed limpo! Todas as fake news foram embora.</div>'}
+        </div>
+        ${removidas.length?`
+          <h3 style="font-size:.78rem;color:#2e7d3c;letter-spacing:1px;margin:14px 0 6px">🗑️ DESCARTADAS NA LIXEIRA (${removidas.length})</h3>
+          <div class="feed" id="p4done">
+            ${removidas.map(n=>p4Card(n)).join('')}
+          </div>`:''}
+      </div>
+
+      <div>
+        <div class="trashbox ${sel?'ready':''}" id="trashZone" data-drop="trash">
+          <div>
+            <div class="t">🗑️</div>
+            <div class="lb">LIXEIRA</div>
+            <div class="sb">${sel?'Toque aqui para descartar a seleção.':'Arraste uma notícia até aqui<br>ou selecione e toque aqui.'}</div>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:12px">
+          ⚠️ <b>Pistas de fake news</b>
+          <ul>
+            <li>Título em CAIXA ALTA ou com urgência</li>
+            <li>Fonte desconhecida, zoeira ou sem autoria</li>
+            <li>Números absurdos, sem contexto</li>
+            <li>Sem data, autor ou link oficial</li>
+            <li>Linguagem alarmista: "ALERTA", "URGENTE"</li>
+          </ul>
+        </div>
+        <div class="center" id="p4count" style="margin-top:10px;font-weight:700"></div>
+        <div class="btn-row"><button class="btn primary hide" id="p4next" onclick="completePhase(4)">▶ Concluir fase</button></div>
+      </div>
+    </div>
+  </div>`);
+  p4Count();
+  bindDrag();
+  bindTrashClick();
+}
+
+function p4Card(n){
+  return `
+    <div class="ncard ${n.status==='descartada'?'ok done':''} ${n.status==='recusada'?'err':''} ${R4.sel===n.i?'sel':''}"
+         ${n.status==='pendente'?`data-drag="n" data-n="${n.i}"`:''}>
+      <div class="meta">
+        <span class="fonte">📰 ${n.f}</span>
+        <span>⏱️ ${n.hora}</span>
+        ${n.status==='descartada'?'<span style="color:#2e7d3c;font-weight:800">✅ ERA FAKE NEWS</span>':''}
+        ${n.status==='recusada'?'<span style="color:#a01818;font-weight:800">⚠️ VOCÊ RECUSOU ESTA</span>':''}
+      </div>
+      <div class="titulo">${n.t}</div>
+      <div class="desc">${n.d}</div>
+      ${n.status==='pendente'?`
+        <div class="acts">
+          <button class="btn sm ghost" onclick="event.stopPropagation();p4Analisar(${n.i})">
+            ${n.aberta?'🔽 Fechar análise':'🔍 Analisar'}</button>
+          <button class="btn sm danger" onclick="event.stopPropagation();p4Sel(${n.i})">
+            ${R4.sel===n.i?'✔ Selecionada — toque na lixeira':'🗑️ Marcar como falsa'}</button>
+        </div>`:''}
+      ${n.aberta?`
+        <div class="clues">
+          ${n.c.map(c=>`<div class="clue ${c[2]}">
+            <b>${c[0]}</b><span class="mk">${c[2]==='good'?'✔':'✖'}</span>${c[1]}</div>`).join('')}
+        </div>`:''}
+    </div>`;
+}
+
+function p4Count(){
+  const el=$('#p4count'); if(!el) return;
+  const rest=R4.list.filter(n=>n.status==='pendente'&&n.fake).length;
+  el.innerHTML = `Fakes na lixeira: <b>${R4.achadas}/${R4.fakesTotal}</b> · faltam <b>${rest}</b>`
+                + (R4.riscos?`<br><span style="color:#a01818">Notícias verdadeiras recusadas: ${R4.riscos}</span>`:'');
+  if(rest===0 && !R4.bonusDado){
+    R4.bonusDado=true;
+    const b=$('#p4next'); if(b) b.classList.remove('hide');
+    const bonus=R4.achadas*70-R4.riscos*40;
+    if(bonus>0) addScore(bonus);
+    toast(`🎉 Todas as fake news identificadas! +${Math.max(0,bonus)} pts`,'good');
+    confetti(); sfxGood();
+  }
+}
+
+/* selecionar notícia (alternativa ao arrastar) */
+window.p4Sel=function(i){
+  const n=R4.list.find(x=>x.i===i); if(!n||n.status!=='pendente') return;
+  R4.sel = (R4.sel===i) ? null : i;
+  sfx(520,.05);
+  p4Render();
+  if(R4.sel) toast('Selecionada! Agora toque na lixeira 🗑️','warn');
+};
+
+/* clicar na lixeira descarta a seleção */
+function bindTrashClick(){
+  const z=$('#trashZone'); if(!z) return;
+  z.addEventListener('click',()=>{
+    if(R4.sel==null){
+      toast('Primeiro selecione uma notícia com 🗑️ Marcar como falsa','warn');
+      return;
+    }
+    p4Drop(R4.sel,'trash',null);
+    R4.sel=null;
+  });
+}
+
+window.p4Analisar=function(i){
+  const n=R4.list.find(x=>x.i===i); if(!n) return;
+  n.aberta=!n.aberta;
+  p4Render();
+  if(n.aberta) sfx(500,.06);
+};
+
+function p4Drop(i,target,el){
+  const n=R4.list.find(x=>x.i===i); if(!n||n.status!=='pendente') return;
+  if(target!=='trash') return;
+  R4.sel=null;
+  if(n.fake){
+    n.status='descartada'; R4.achadas++;
+    addScore(70); sfxGood();
+    toast('✅ Fake news descartada! +70 pts','good');
+    p4Render();
+  }else{
+    n.status='recusada'; R4.riscos++;
+    sfxBad(); addScore(-40);
+    loseLife('💔 Essa notícia é VERDADEIRA! Ela não pode ir para a lixeira.');
+    toast('❌ Notícia verdadeira em risco!','bad');
+    p4Render();
+    setTimeout(()=>{ if(S.phase===4){ n.status='pendente'; p4Render(); } },1600);
+  }
+  p4Count();
+}
+
+/* =====================================================================
+   FASE 5 — DEFESA DIGITAL (Space Shooter)
+   Meta: 20 eliminações. Tiro triplo, dash, escudo, power-ups,
+   5 tipos de inimigo, chefes e ondas crescentes.
+   ===================================================================== */
+const ENEMY_TYPES=[
+  {e:'🦠',t:'virus',      hp:1,pts:10, move:'straight'},
+  {e:'👾',t:'malware',    hp:1,pts:15, move:'zigzag'},
+  {e:'🐛',t:'bug',        hp:3,pts:20, move:'slow'},
+  {e:'☠️',t:'ransomware', hp:2,pts:30, move:'straight', fires:1.6},
+  {e:'🕷️',t:'spyware',   hp:1,pts:18, move:'sine',    fires:2.2}
+];
+const POWERUPS=[
+  {id:'tri',  e:'💠', t:'Tiro Triplo', dur:9000, col:'#00f0ff'},
+  {id:'rap',  e:'⚡', t:'Tiro Rápido', dur:9000, col:'#ffd93d'},
+  {id:'pier', e:'🔱', t:'Tiro Perfurante', dur:9000, col:'#ff3ea5'},
+  {id:'shield',e:'🛡️', t:'Escudo',    dur:0,   col:'#a855f7'},
+  {id:'vida', e:'❤️', t:'Vida Extra', dur:0,   col:'#25f4a7'}
+];
+
+function p5(){
+  S.phase=5; setRetry(()=>p5());
+  screen(HUD+`
+  <div class="panel">
+    <h2 class="ptitle"><span class="badge">FASE 5</span> Defesa Digital 🚀</h2>
+    <p class="muted">Pilote e elimine <b>🦠vírus 👾malware 🐛bugs ☠️ransomware 🕷️spyware</b>.
+      Meta: <b>20 eliminações</b>. Chefes aparecem a cada 10. Use <b>←/→</b> ou <b>A/D</b>, <b>ESPAÇO</b> atira, <b>SHIFT</b> dá dash.</p>
+
+    <div class="gamebar">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span class="tag">Eliminações</span><b style="color:var(--yellow)" id="gKill">0/20</b>
+        <span class="tag">Onda</span><b style="color:var(--cyan)" id="gWave">1</b>
+        <span class="tag">Combo</span><b style="color:var(--pink)" id="gCombo">x0</b>
+        <span class="tag" style="display:inline-flex;align-items:center;gap:6px">Casco
+          <span class="hpdots" id="gHp"></span></span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="skill" id="shieldBtn" onclick="toggleShield()">🛡️ Escudo (3)</button>
+        <button class="skill" id="dashBtn" onclick="toggleDash()">💨 Dash <span class="gauge" id="gDash"><i></i></span></button>
+      </div>
+    </div>
+
+    <div class="pwslots" id="gPw"></div>
+
+    <div id="gameWrap">
+      <canvas id="cv" width="440" height="400"></canvas>
+      <div id="overlayC" class="hide"></div>
+      <div class="bossbar" id="gBoss"><div class="bt" id="gBossT">CHEFE</div><div class="bb"><i id="gBossB"></i></div></div>
+    </div>
+
+    <div class="pads">
+      <div class="col"><div class="padbtn" data-key="left">⬅️</div></div>
+      <div class="col">
+        <div class="padbtn" data-key="dash">💨</div>
+        <div class="padbtn" data-key="fire">🔥</div>
+        <div class="padbtn" data-key="shield">🛡️</div>
+      </div>
+      <div class="col"><div class="padbtn" data-key="right">➡️</div></div>
+    </div>
+    <div class="center" id="gMsg" style="margin-top:10px;font-weight:700;color:var(--cyan)">🔥 Proteja a internet!</div>
+  </div>`);
+  initGame();
+}
+
+/* -------------------------- ENGINE DO JOGO --------------------------- */
+let G=null;
+function initGame(){
+  const cv=$('#cv'), ctx=cv.getContext('2d');
+  G={
+    cv,ctx,W:cv.width,H:cv.height,raf:0,last:0,
+    player:{x:cv.width/2,y:cv.height-46,w:34,h:30,spd:5.4,hp:3,maxhp:3,
+            shield:false,dash:0,dashCd:0,dashT:0,invul:0,trail:[]},
+    bullets:[],ebul:[],enemies:[],parts:[],floats:[],drops:[],
+    kills:0,goal:20,wave:1,combo:0,comboT:0,shields:3,
+    pw:{},                 // power-ups ativos {tri:tempo,...}
+    keys:{},fire:false,lastShot:0,spawn:60,running:true,shake:0,
+    boss:null,bossSpawned:0,
+    stars:Array.from({length:80},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,s:Math.random()*1.6+.3,sp:Math.random()*.7+.15})),
+    spawnRate:88,maxAlive:4
+  };
+  window.addEventListener('keydown',onKeyDown);
+  window.addEventListener('keyup',onKeyUp);
+  bindPads();
+  updHUD();                       // desenha casco, escudo e dash já no início
+  cancelAnimationFrame(G.raf);
+  G.last=performance.now();
+  G.raf=requestAnimationFrame(loop);
+}
+
+function onKeyDown(e){
+  if(S.phase!==5||!G||!G.running) return;
+  const k=e.key.toLowerCase();
+  if(k==='shift'&&!e.repeat) toggleDash();
+  G.keys[k]=true;
+  if([' ','arrowleft','arrowright','a','d','shift'].includes(k)) e.preventDefault();
+}
+function onKeyUp(e){ if(S.phase===5&&G) G.keys[e.key.toLowerCase()]=false; }
+
+function bindPads(){
+  $$('.padbtn').forEach(b=>{
+    if(b._b) return; b._b=true;
+    const k=b.dataset.key;
+    b.addEventListener('pointerdown',ev=>{
+      ev.preventDefault();
+      if(k==='fire') G.fire=true;
+      else if(k==='shield') toggleShield();
+      else if(k==='dash') toggleDash();
+      else G.keys[k]=true;
+    });
+    const off=()=>{ if(k!=='fire'&&k!=='shield'&&k!=='dash') G.keys[k]=false; };
+    b.addEventListener('pointerup',off);
+    b.addEventListener('pointerleave',off);
+    b.addEventListener('pointercancel',off);
+  });
+}
+
+/* ---------------- escudo e dash ---------------- */
+function toggleShield(){
+  if(!G||!G.running) return;
+  if(G.player.shield) return toast('🛡️ Escudo já está ativo!','warn');
+  if(G.shields<=0) return toast('❌ Sem escudos!','warn');
+  G.shields--; G.player.shield=true; G.player.invul=Math.max(G.player.invul,120);
+  sfx(320,.2,'triangle',.05); updHUD();
+  toast('🛡️ Escudo ativo! Absorve o próximo impacto.','good');
+}
+
+function toggleDash(){
+  if(!G||!G.running) return;
+  const p=G.player;
+  if(p.dashCd>0) return toast('💨 Dash recarregando…','warn');
+  p.dashCd=150;
+  p.dashT=11; p.dash=1;
+  p.invul=Math.max(p.invul,18);       // dash dá invulnerabilidade breve
+  sfx(880,.12,'sawtooth',.035);
+  ftext(p.x,p.y-30,'💨','#00f0ff');
+}
+
+function updHUD(){
+  const b=$('#shieldBtn'); if(b&&G){
+    b.textContent=G.player.shield?'🛡️ ATIVO':`🛡️ Escudo (${G.shields})`;
+    b.classList.toggle('act',G.player.shield);
+  }
+  const d=$('#gDash');
+  if(d&&G){
+    const pct=G.player.dashCd>0 ? (1-G.player.dashCd/150)*100 : 100;
+    d.querySelector('i').style.width=pct+'%';
+    d.classList.toggle('ready',G.player.dashCd<=0);
+  }
+  const hp=$('#gHp');
+  if(hp&&G){
+    hp.innerHTML=Array.from({length:G.player.maxhp},(_,i)=>
+      `<span class="hpdot ${i<G.player.hp?'':'off'}"></span>`).join('');
+  }
+  const pw=$('#gPw');
+  if(pw&&G){
+    pw.innerHTML=Object.keys(G.pw).filter(k=>G.pw[k]>0).map(k=>{
+      const def=POWERUPS.find(p=>p.id===k);
+      return `<span class="pwslot" style="border-color:${def.col};color:${def.col}">
+        ${def.e} ${def.t} ${(G.pw[k]/1000).toFixed(1)}s</span>`;
+    }).join('');
+  }
+}
+
+/* ---------------- inimigos ---------------- */
+function spawnEnemy(){
+  const boost=Math.min(3,Math.floor(G.kills/6));
+  const pool=ENEMY_TYPES.filter(t=>!(G.wave<2&&t.t==='spyware'));
+  let t=Math.random()<0.12+boost*0.10 ? ENEMY_TYPES[3] : rnd(pool);
+  const scale=1+boost*0.15;
+  const hp=Math.max(1,Math.ceil(t.hp*scale));
+  G.enemies.push({
+    x:30+Math.random()*(G.W-60), y:-40,
+    e:t.e,t:t.t,hp,maxhp:hp,pts:t.pts,move:t.move,
+    vy:0.85+boost*0.28+Math.random()*0.5,
+    vx:(Math.random()-0.5)*1.3, base:30+Math.random()*(G.W-60), ph:Math.random()*6,
+    r:17, shot:ri(60,140), fires:t.fires||0
+  });
+}
+
+/* chefe: aparece a cada 10 eliminações */
+function spawnBoss(){
+  if(G.boss) return;
+  G.bossSpawned++;
+  G.boss={
+    x:G.W/2, y:-60, hp:26+G.wave*6, maxhp:26+G.wave*6,
+    e:'🧟', t:'boss', hp0:0, r:40, ph:0, shot:70, rage:false
+  };
+  G.boss.maxhp=26+G.wave*6; G.boss.hp=G.boss.maxhp;
+  G.spawn=200; G.maxAlive=2;
+  const bb=$('#gBoss'); if(bb){ bb.classList.add('on'); $('#gBossT').textContent='🧟 CHEFE — VÍRUSO SUPREMO'; }
+  waveBanner('⚠️ CHEFE!');
+  toast('🧟 Um vírus supremo apareceu!','warn');
+  sfx(140,.5,'sawtooth',.07);
+}
+
+/* ---------------- efeitos ---------------- */
+function boom(x,y,color='#00f0ff',n=10){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, s=1+Math.random()*3.2;
+    G.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:30,color});
+  }
+}
+function ftext(x,y,txt,c='#ffd93d'){ G.floats.push({x,y,t:txt,c,life:42}); }
+
+function dropPowerup(x,y){
+  if(Math.random()>0.16) return;
+  const def=rnd(POWERUPS);
+  G.drops.push({x,y,e:def.e,id:def.id,dur:def.dur,col:def.col,ph:Math.random()*6});
+}
+
+/* ---------------- loop ---------------- */
+function loop(ts){
+  if(!G||S.phase!==5) return;
+  G.raf=requestAnimationFrame(loop);
+  const dt=Math.min(2.6,(ts-G.last)/16.67||1);
+  G.last=ts;
+  if(G.running) update(dt);
+  draw();
+}
+
+function update(dt){
+  const p=G.player;
+
+  /* --- movimento + dash --- */
+  if(p.dashT>0) p.dashT-=dt;
+  if(p.dashCd>0) p.dashCd-=dt;
+  const speed=p.spd*(p.dashT>0?2.6:1);
+  const left=G.keys.arrowleft||G.keys.a, right=G.keys.arrowright||G.keys.d;
+  if(left&&!right)  p.x-=speed*dt;
+  if(right&&!left) p.x+=speed*dt;
+  p.x=Math.max(p.w/2,Math.min(G.W-p.w/2,p.x));
+
+  if(p.invul>0) p.invul-=dt;
+  p.trail.unshift({x:p.x,y:p.y});
+  if(p.trail.length>10) p.trail.pop();
+
+  /* --- power-ups ativos --- */
+  for(const k of Object.keys(G.pw)){ G.pw[k]-=dt; if(G.pw[k]<=0) delete G.pw[k]; }
+
+  /* --- tiro --- */
+  const now=performance.now();
+  const rate=G.pw.rap?90:160;
+  if((G.fire||G.keys[' ']) && now-G.lastShot>rate){
+    G.lastShot=now;
+    if(G.pw.tri){
+      G.bullets.push({x:p.x,y:p.y-18,vx:0,vy:-7.6,pier:!!G.pw.pier});
+      G.bullets.push({x:p.x-13,y:p.y-10,vx:-3.1,vy:-6.8,pier:!!G.pw.pier});
+      G.bullets.push({x:p.x+13,y:p.y-10,vx:3.1,vy:-6.8,pier:!!G.pw.pier});
+    }else{
+      G.bullets.push({x:p.x-9,y:p.y-18,vx:0,vy:-7.6,pier:!!G.pw.pier});
+      G.bullets.push({x:p.x+9,y:p.y-18,vx:0,vy:-7.6,pier:!!G.pw.pier});
+    }
+    sfxShot();
+  }
+
+  /* --- spawn --- */
+  G.spawn-=dt;
+  if(!G.boss && G.spawn<=0 && G.enemies.length<G.maxAlive+Math.min(4,G.wave-1)){
+    spawnEnemy();
+    G.spawn=G.spawnRate-Math.min(40,G.wave*6);
+  }
+
+  /* --- chefe nos marcos --- */
+  if(!G.boss && !G.bossSpawnedAt && G.kills>=10 && G.kills<G.goal){
+    G.bossSpawnedAt=true; spawnBoss();
+  }
+
+  /* --- partículas / textos --- */
+  for(const q of G.parts){ q.x+=q.vx*dt; q.y+=q.vy*dt; q.life-=dt; }
+  G.parts=G.parts.filter(q=>q.life>0);
+  for(const f of G.floats){ f.y-=0.6*dt; f.life-=dt; }
+  G.floats=G.floats.filter(f=>f.life>0);
+  if(G.comboT>0){ G.comboT-=dt; if(G.comboT<=0) G.combo=0; }
+  if(G.shake>0) G.shake-=dt;
+
+  /* --- drops de power-up --- */
+  for(const d of G.drops){
+    d.y+=1.5*dt; d.ph+=0.08*dt; d.x+=Math.sin(d.ph)*1.2*dt;
+    if(Math.abs(d.x-p.x)<22 && Math.abs(d.y-p.y)<22){ d.gone=true; grabPowerup(d); }
+  }
+  G.drops=G.drops.filter(d=>!d.gone && d.y<G.H+20);
+
+  /* --- balas do jogador (com perfuração) --- */
+  for(const b of G.bullets){
+    b.y+=b.vy*dt; b.x+=b.vx*dt;
+    if(b.x<-20||b.x>G.W+20){ b.dead=true; continue; }
+    if(G.boss && !b.dead){
+      if(Math.abs(b.x-G.boss.x)<G.boss.r && Math.abs(b.y-G.boss.y)<G.boss.r){
+        G.boss.hp--; b.dead=!b.pier;
+        boom(b.x,b.y,'#ffd93d',4); sfx(320,.04,'square',.018);
+        $('#gBossB') && ($('#gBossB').style.width=(G.boss.hp/G.boss.maxhp*100)+'%');
+        if(G.boss.hp<=0) killBoss();
+      }
+    }
+    if(b.dead) continue;
+    for(const en of G.enemies){
+      if(Math.abs(b.x-en.x)<en.r && Math.abs(b.y-en.y)<en.r){
+        en.hp--; b.dead=!b.pier;
+        boom(b.x,b.y,'#ffd93d',4); sfx(320,.04,'square',.018);
+        if(en.hp<=0) kill(en);
+        if(b.dead) break;
+      }
+    }
+  }
+  G.bullets=G.bullets.filter(b=>!b.dead && b.y>-14 && b.x>-20 && b.x<G.W+20);
+
+  /* --- balas inimigas --- */
+  for(const b of G.ebul){ b.y+=3.4*dt; b.x+=(b.vx||0)*dt; }
+  for(const b of G.ebul){
+    if(Math.abs(b.x-p.x)<17 && Math.abs(b.y-p.y)<19 && p.invul<=0){ b.dead=true; hit(); }
+  }
+  G.ebul=G.ebul.filter(b=>!b.dead && b.y<G.H+12);
+
+  /* --- inimigos --- */
+  for(const en of G.enemies){
+    en.ph+=0.09*dt;
+    if(en.move==='zigzag')   { en.y+=en.vy*dt; en.x=en.base+Math.sin(en.ph*2.2)*46; }
+    else if(en.move==='sine'){ en.y+=en.vy*1.15*dt; en.x=en.base+Math.sin(en.ph)*72; }
+    else                     { en.y+=en.vy*dt; en.x+=en.vx*dt; }
+    if(en.x<en.r) { en.x=en.r; en.vx=Math.abs(en.vx); }
+    if(en.x>G.W-en.r){ en.x=G.W-en.r; en.vx=-Math.abs(en.vx); }
+    if(en.fires && en.y>0 && en.y<G.H-90){
+      en.shot-=dt;
+      if(en.shot<=0){ en.shot=ri(70,170)/en.fires; G.ebul.push({x:en.x,y:en.y+15}); }
+    }
+    if(Math.abs(en.x-p.x)<en.r+p.w/2 && Math.abs(en.y-p.y)<en.r+p.h/2 && p.invul<=0){
+      en.gone=true; hit(true,en);
+    }
+    if(en.y>G.H+36) en.gone=true;
+  }
+  G.enemies=G.enemies.filter(e=>!e.gone);
+
+  /* --- chefe --- */
+  if(G.boss){
+    const b=G.boss;
+    b.ph+=0.05*dt;
+    b.x=Math.max(b.r,Math.min(G.W-b.r, b.x+Math.sin(b.ph)*2.4));
+    b.y+=Math.min(1.2,Math.max(0.35,(-40-b.y)*0.02+0.9))*dt;
+    b.shot-=dt;
+    if(b.shot<=0 && b.y>10){
+      b.shot=b.hp<b.maxhp/2?52:110;
+      const ang=Math.atan2(p.y-b.y,p.x-b.x);
+      G.ebul.push({x:b.x,y:b.y+20,vx:Math.cos(ang)*2.9});
+      if(b.hp<b.maxhp/2) G.ebul.push({x:b.x-22,y:b.y+10,vx:Math.cos(ang-0.4)*2.6});
+    }
+    if(Math.abs(b.x-p.x)<b.r+p.w/2 && Math.abs(b.y-p.y)<b.r+p.h/2 && p.invul<=0) hit(true,b);
+  }
+
+  hudGame();
+}
+
+/* ---------------- power-ups ---------------- */
+function grabPowerup(d){
+  const def=POWERUPS.find(x=>x.id===d.id);
+  sfx(900,.1,'triangle',.05);
+  ftext(p().x,p().y-32,def.t,def.col);
+  if(d.dur>0){ G.pw[d.id]=d.dur; toast(`${def.e} ${def.t} ativado!`,'good'); }
+  else if(d.id==='shield'){ G.player.shield=true; G.player.invul=Math.max(G.player.invul,120); toast('🛡️ Escudo coletado!','good'); }
+  else if(d.id==='vida'){
+    if(G.player.hp<G.player.maxhp){ G.player.hp++; toast('❤️ Vida recuperada!','good'); }
+    else { S.lives=Math.min(S.maxLives,S.lives+1); hud(); toast('❤️ Vida extra conquistada!','good'); }
+  }
+  updHUD();
+}
+function p(){ return G.player; }
+
+/* ---------------- mortes ---------------- */
+function kill(en){
+  en.gone=true; G.kills++; G.combo++; G.comboT=120;
+  const mult=1+Math.floor((G.combo-1)/3)*0.5;
+  const pts=Math.round(en.pts*mult);
+  addScore(pts);
+  ftext(en.x,en.y,`+${pts}`,mult>1?'#ff3ea5':'#25f4a7');
+  boom(en.x,en.y,mult>1?'#ff3ea5':'#25f4a7',16);
+  dropPowerup(en.x,en.y);
+  G.shake=4;
+  sfxBoom();
+  if(en.t==='bug'){ // divide em dois vírus
+    for(let i=0;i<2;i++){
+      G.enemies.push({x:en.x+(i?12:-12),y:en.y,e:'🦠',t:'virus',hp:1,maxhp:1,pts:10,
+        move:'straight',vy:1.3,vx:(i?0.8:-0.8),base:en.x,ph:0,r:14,shot:999,fires:0});
+    }
+  }
+  if(G.kills%6===0 && G.kills<G.goal){
+    G.wave++;
+    waveBanner('ONDA '+G.wave);
+    G.maxAlive=Math.min(7,G.maxAlive+1);
+    toast(`🌊 Onda ${G.wave} — mais inimigos e mais rápidos!`,'warn');
+  }
+  if(G.kills>=G.goal) winGame();
+}
+
+function killBoss(){
+  const b=G.boss; if(!b) return;
+  G.boss=null;
+  boom(b.x,b.y,'#ff3ea5',42); boom(b.x,b.y,'#00f0ff',28);
+  G.shake=12;
+  G.kills+=5;
+  addScore(300);
+  ftext(b.x,b.y,'CHEFE! +300','#ffd93d');
+  dropPowerup(b.x,b.y);
+  const bb=$('#gBoss'); if(bb){ bb.classList.remove('on'); $('#gBossB').style.width='0%'; }
+  G.maxAlive=4;
+  sfxGood(); confetti();
+  toast('🧟👾 CHEFE DERROTADO! +5 eliminações','good');
+  if(G.kills>=G.goal) winGame();
+}
+
+function hit(isRam,en){
+  const p=G.player;
+  const x=(isRam&&en)?en.x:p.x, y=(isRam&&en)?en.y:p.y;
+  if(p.shield){
+    G.enemies = G.enemies.filter(e=>e!==en);
+    boom(x,y,'#a855f7',16);
+    p.shield=false; p.invul=140;
+    updHUD(); sfxBad();
+    toast('🛡️ O escudo absorveu o golpe!','warn');
+    return;
+  }
+  boom(x,y,'#ff3b5c',18);
+  G.shake=8;
+  p.invul=110;
+  p.hp--;
+  G.combo=0;
+  if(p.hp>0){
+    sfxBad();
+    toast(`💔 Casco danificado! Restam ${p.hp} de ${p.maxhp}.`,'bad');
+    updHUD();
+    return;
+  }
+  // nave destruída: renasce no centro com o casco cheio
+  p.hp=p.maxhp;
+  p.x=G.W/2;
+  p.y=G.H-46;
+  p.trail.length=0;
+  p.invul=170;
+  p.shield=false;
+  G.enemies.length=Math.min(G.enemies.length,2);
+  G.ebul.length=0;
+  updHUD();
+  loseLife('💔 Sua nave foi destruída! Casco restaurado.');
+}
+
+function hudGame(){
+  const k=$('#gKill'),c=$('#gCombo'),w=$('#gWave');
+  if(!k) return;
+  k.textContent=`${G.kills}/${G.goal}`;
+  c.textContent='x'+(G.combo>2?G.combo:0);
+  w.textContent=G.wave;
+  updHUD();
+}
+
+function waveBanner(txt){
+  const b=document.createElement('div');
+  b.className='wavebanner'; b.textContent=txt;
+  $('#gameWrap').appendChild(b);
+  t(()=>b.remove(),1800);
+}
+
+/* ---------------- desenho ---------------- */
+function draw(){
+  const {ctx,W,H}=G, p=G.player;          // p = nave do jogador (G.player)
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  if(G.shake>0) ctx.translate((Math.random()-.5)*5,(Math.random()-.5)*5);
+
+  /* estrelas com parallax */
+  for(const st of G.stars){
+    ctx.fillStyle='rgba(180,210,255,.5)';
+    ctx.fillRect(st.x,st.y,st.s,st.s);
+    st.y+=st.sp*(G.pw.rap?1.8:1);
+    if(st.y>H){ st.y=-2; st.x=Math.random()*W; }
+  }
+
+  ctx.fillStyle='rgba(168,85,247,.10)'; ctx.fillRect(0,0,W,32);
+  ctx.font='11px sans-serif'; ctx.fillStyle='rgba(200,220,255,.6)';
+  ctx.fillText('ZONA PROTEGIDA', 8, 20);
+
+  /* rastro do dash */
+  ctx.save();
+  for(let i=1;i<p.trail.length;i++){
+    const tr=p.trail[i];
+    ctx.globalAlpha=0.22*(1-i/p.trail.length);
+    ctx.fillStyle='#00f0ff'; ctx.font='22px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🚀',tr.x,tr.y);
+  }
+  ctx.restore();
+
+  const blink=p.invul>0 && Math.floor(p.invul/4)%2===0;
+  if(!blink){
+    ctx.save();
+    ctx.shadowBlur=18; ctx.shadowColor='#00f0ff';
+    ctx.font='26px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🚀',p.x,p.y);
+    ctx.restore();
+  }
+  if(p.shield){
+    ctx.save(); ctx.shadowBlur=20; ctx.shadowColor='#a855f7';
+    ctx.strokeStyle='rgba(168,85,247,.9)'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(p.x,p.y,26,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+  if(p.dashT>0){
+    ctx.save(); ctx.strokeStyle='rgba(0,240,255,.55)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(p.x,p.y,30,0,Math.PI*2); ctx.stroke(); ctx.restore();
+  }
+
+  /* power-ups no chão */
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(const d of G.drops){
+    const pulse=1+Math.sin(d.ph*2)*0.12;
+    ctx.save(); ctx.shadowBlur=14; ctx.shadowColor=d.col;
+    ctx.font=(22*pulse)+'px sans-serif'; ctx.fillText(d.e,d.x,d.y);
+    ctx.restore();
+  }
+
+  /* balas */
+  ctx.save();
+  ctx.shadowBlur=12; ctx.fillStyle='#ffd93d';
+  for(const b of G.bullets){ ctx.beginPath(); ctx.arc(b.x,b.y,3.4,0,Math.PI*2); ctx.fill(); }
+  ctx.shadowColor='#ff3ea5'; ctx.fillStyle='#ff3ea5';
+  for(const b of G.ebul){ ctx.beginPath(); ctx.arc(b.x,b.y,4.2,0,Math.PI*2); ctx.fill(); }
+  ctx.restore();
+
+  /* inimigos */
+  for(const en of G.enemies){
+    ctx.font=(en.maxhp>2?'30px':'26px')+' sans-serif';
+    ctx.fillText(en.e,en.x,en.y);
+    if(en.maxhp>1){
+      ctx.fillStyle='rgba(255,255,255,.2)'; ctx.fillRect(en.x-14,en.y-22,28,3);
+      ctx.fillStyle='#ff3b5c'; ctx.fillRect(en.x-14,en.y-22,28*(en.hp/en.maxhp),3);
+    }
+  }
+
+  /* chefe */
+  if(G.boss){
+    const b=G.boss;
+    ctx.save(); ctx.shadowBlur=24; ctx.shadowColor='#ff3b5c';
+    ctx.font='54px sans-serif'; ctx.fillText('🧟',b.x,b.y); ctx.restore();
+  }
+
+  /* partículas e textos */
+  ctx.save();
+  for(const q of G.parts){ ctx.globalAlpha=Math.max(0,q.life/30); ctx.fillStyle=q.color; ctx.fillRect(q.x,q.y,2.6,2.6); }
+  ctx.font='bold 13px sans-serif';
+  for(const f of G.floats){ ctx.globalAlpha=Math.max(0,f.life/42); ctx.fillStyle=f.c; ctx.fillText(f.t,f.x,f.y); }
+  ctx.restore();
+
+  ctx.restore();
+}
+
+/* ---------------- fim de jogo ---------------- */
+function winGame(){
+  G.running=false;
+  cancelAnimationFrame(G.raf);
+  const bonus=300+S.lives*60+G.player.hp*40;
+  addScore(bonus);
+  sfxGood(); confetti();
+  const ov=$('#overlayC');
+  ov.classList.remove('hide');
+  ov.innerHTML=`<div>
+    <div style="font-size:3rem">🚀</div>
+    <div class="t">MISSÃO CUMPRIDA!</div>
+    <div class="muted">Você protegeu a internet de ${G.kills} ameaças!<br>
+      Bônus final: <b style="color:var(--cyan)">+${bonus}</b> pts</div>
+    <div class="btn-row"><button class="btn primary" onclick="completePhase(5)">▶ Ver resultado</button></div>
+  </div>`;
+}
+
+function gameOverScreen(){
+  G.running=false;
+  cancelAnimationFrame(G.raf);
+  const ov=$('#overlayC');
+  ov.classList.remove('hide');
+  ov.innerHTML=`<div>
+    <div style="font-size:3rem">💥</div>
+    <div class="t" style="color:var(--red);text-shadow:0 0 18px var(--red)">INVASÃO!</div>
+    <div class="muted">Você eliminou ${G.kills} de ${G.goal} ameaças.<br>Os vírus dominaram!</div>
+    <div class="btn-row"><button class="btn primary" onclick="p5()">↺ Tentar de novo</button></div>
+  </div>`;
+}
+
+/* sem vidas na fase 5 -> game over */
+(function(){
+  const orig=loseLife;
+  loseLife=function(msg){
+    const before=S.lives;
+    orig(msg);
+    if(S.phase===5 && G && before>0 && S.lives<=0){ closeModal(); gameOverScreen(); }
+  };
+})();
+
+/* =============================== FINAL ============================== */
+function finalScreen(){
+  S.phase=6;
+  const done=S.done.size;
+  const cls = (done===TOTAL && S.score>=3400)?'g1' : (done===TOTAL?'g2':'g3');
+  const rank={g1:'🏆 ESCUDOURO DE OURO — PERFEITO!',
+              g2:'🥈 AGENTE DE ELITE',
+              g3:'🥉 APRENDIZ EM TREINO'}[cls];
+
+  screen(HUD+`
+  <div class="panel center">
+    <div style="font-size:4rem;animation:float 2.5s infinite">🎉</div>
+    <h1 style="font-size:clamp(1.7rem,6vw,2.6rem);letter-spacing:2px;
+      background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));
+      -webkit-background-clip:text;background-clip:text;color:transparent">MISSÃO COMPLETA!</h1>
+    <div class="rank ${cls}">${rank}</div>
+
+    <div class="stats">
+      <div class="stat"><div class="v">${S.score}</div><div class="k">Pontuação</div></div>
+      <div class="stat"><div class="v">${S.lives>0?'❤️'.repeat(S.lives):'0'}</div><div class="k">Vidas Restantes</div></div>
+      <div class="stat"><div class="v">${done}/${TOTAL}</div><div class="k">Fases Concluídas</div></div>
+    </div>
+
+    <h3 style="margin-top:20px;color:var(--cyan);font-size:1rem">💡 Dicas de Segurança Digital</h3>
+    <div class="tips">
+      <div class="tip"><span class="i">🔑</span><div><b>Use senhas fortes.</b><br>8+ caracteres com maiúsculas, minúsculas, números e símbolos. Uma senha diferente para cada site.</div></div>
+      <div class="tip"><span class="i">📱</span><div><b>Ative 2FA.</b><br>A verificação em duas etapas bloqueia quase todos os ataques.</div></div>
+      <div class="tip"><span class="i">🎣</span><div><b>Cuidado com phishing.</b><br>Desconfie de prêmios, urgência e pedidos de senha.</div></div>
+      <div class="tip"><span class="i">📰</span><div><b>Verifique notícias.</b><br>Confira fonte, data, autor e evidências antes de compartilhar.</div></div>
+      <div class="tip"><span class="i">🔗</span><div><b>Não clique em links suspeitos.</b><br>Digite o endereço do site você mesmo. Downloads e prêmios são iscas.</div></div>
+      <div class="tip"><span class="i">⬆️</span><div><b>Mantenha dispositivos atualizados.</b><br>As atualizações corrigem falhas de segurança importantes.</div></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn big primary" onclick="startGame()">↺ Jogar novamente</button>
+      <button class="btn big ghost" onclick="menu()">⌂ Menu principal</button>
+    </div>
+  </div>`);
+  confetti(); sfxGood();
+}
+
+/* ------------------------------ BOOT -------------------------------- */
+renderIcons();
+startBoot();
+</script>
 </body>
 </html>
